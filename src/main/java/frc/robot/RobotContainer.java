@@ -6,6 +6,7 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import static frc.robot.Constants.OperatorConstants.*;
@@ -30,13 +31,13 @@ public class RobotContainer {
   private final CANFuelSubsystem fuelSubsystem = new CANFuelSubsystem();
 
   // The driver's controller
-  private final CommandPS4Controller driverController = new CommandPS4Controller(
-      DRIVER_CONTROLLER_PORT);
+  private final CommandGenericHID driverController = new CommandGenericHID(DRIVER_CONTROLLER_PORT);
 
   // The operator's controller
   //CURRENTLY NOT IN USE
-  private final CommandPS4Controller operatorController = new CommandPS4Controller(
+  private final CommandGenericHID operatorController = new CommandGenericHID(
       OPERATOR_CONTROLLER_PORT);
+
 
   // The autonomous chooser
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -67,13 +68,13 @@ public class RobotContainer {
   private void configureBindings() {
 
     // While the left bumper on operator controller is held, intake Fuel
-    driverController.L1().whileTrue(new Intake(fuelSubsystem));
+    driverController.button(5).whileTrue(new Intake(fuelSubsystem));
     // While the right bumper on the operator controller is held, spin up for 1
     // second, then launch fuel. When the button is released, stop.
-    driverController.R1().whileTrue(new LaunchSequence(fuelSubsystem));
+    driverController.button(6).whileTrue(new LaunchSequence(fuelSubsystem));
     // While the A button is held on the operator controller, eject fuel back out
     // the intake
-    driverController.cross().whileTrue(new Eject(fuelSubsystem));
+    driverController.button(2).whileTrue(new Eject(fuelSubsystem));
 
     // Set the default command for the drive subsystem to the command provided by
     // factory with the values provided by the joystick axes on the driver
