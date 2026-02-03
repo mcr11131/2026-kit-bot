@@ -7,16 +7,16 @@ package frc.robot.commands;
 import static frc.robot.Constants.OperatorConstants.*;
 
 import edu.wpi.first.wpilibj2.command.Command;
-import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import frc.robot.subsystems.CANDriveSubsystem;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class Drive extends Command {
   /** Creates a new Drive. */
   CANDriveSubsystem driveSubsystem;
-  CommandPS4Controller controller;
+  CommandGenericHID controller;
 
-  public Drive(CANDriveSubsystem driveSystem, CommandPS4Controller driverController) {
+  public Drive(CANDriveSubsystem driveSystem, CommandGenericHID driverController) {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(driveSystem);
     driveSubsystem = driveSystem;
@@ -35,7 +35,7 @@ public class Drive extends Command {
   // controllable.
   @Override
   public void execute() {
-    driveSubsystem.driveArcade(-controller.getLeftY() * DRIVE_SCALING, -controller.getRightX() * ROTATION_SCALING);
+    driveSubsystem.driveArcade(-controller.getRawAxis(1) * DRIVE_SCALING, -controller.getRawAxis(4) * ROTATION_SCALING);
   }
 
   // Called once the command ends or is interrupted.
