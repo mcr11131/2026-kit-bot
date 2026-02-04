@@ -35,7 +35,9 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   // Simulation support
   private SparkMaxSim leftLeaderSim;
+  private SparkMaxSim leftFollowerSim;
   private SparkMaxSim rightLeaderSim;
+  private SparkMaxSim rightFollowerSim;
   private DifferentialDrivetrainSim drivetrainSim;
 
   public CANDriveSubsystem() {
@@ -94,10 +96,12 @@ public class CANDriveSubsystem extends SubsystemBase {
     leftEncoder = leftLeader.getEncoder();
     rightEncoder = rightLeader.getEncoder();
 
-    // Initialize simulation objects
+    // Initialize simulation objects for all four motors
     DCMotor driveMotor = DCMotor.getCIM(2);
     leftLeaderSim = new SparkMaxSim(leftLeader, driveMotor);
+    leftFollowerSim = new SparkMaxSim(leftFollower, driveMotor);
     rightLeaderSim = new SparkMaxSim(rightLeader, driveMotor);
+    rightFollowerSim = new SparkMaxSim(rightFollower, driveMotor);
     drivetrainSim = new DifferentialDrivetrainSim(
         driveMotor,
         DRIVE_GEAR_RATIO,
@@ -128,7 +132,9 @@ public class CANDriveSubsystem extends SubsystemBase {
             / (WHEEL_RADIUS_METERS * 2 * Math.PI) * 60.0 * DRIVE_GEAR_RATIO;
 
     leftLeaderSim.iterate(leftVelocityRPM, vbus, 0.02);
+    leftFollowerSim.iterate(leftVelocityRPM, vbus, 0.02);
     rightLeaderSim.iterate(rightVelocityRPM, vbus, 0.02);
+    rightFollowerSim.iterate(rightVelocityRPM, vbus, 0.02);
 
     RoboRioSim.setVInVoltage(
         BatterySim.calculateDefaultBatteryLoadedVoltage(drivetrainSim.getCurrentDrawAmps()));
