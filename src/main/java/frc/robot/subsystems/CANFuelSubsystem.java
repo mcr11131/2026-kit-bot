@@ -9,14 +9,26 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.sim.SparkMaxSim;
 
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.FuelConstants.*;
+import static frc.robot.Constants.SimConstants.*;
 
 public class CANFuelSubsystem extends SubsystemBase {
   private final SparkMax feederRoller;
   private final SparkMax intakeLauncherRoller;
+
+  // Simulation support
+  private SparkMaxSim launcherSim;
+  private SparkMaxSim feederSim;
+  private FlywheelSim launcherFlywheelSim;
+  private FlywheelSim feederFlywheelSim;
 
   /** Creates a new CANBallSubsystem. */
   public CANFuelSubsystem() {
@@ -47,6 +59,15 @@ public class CANFuelSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Launching feeder roller value", LAUNCHING_FEEDER_VOLTAGE);
     SmartDashboard.putNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE);
     SmartDashboard.putNumber("Spin-up feeder roller value", SPIN_UP_FEEDER_VOLTAGE);
+
+    // Initialize simulation objects
+    DCMotor cim = DCMotor.getCIM(1);
+    launcherSim = new SparkMaxSim(intakeLauncherRoller, cim);
+    feederSim = new SparkMaxSim(feederRoller, cim);
+    launcherFlywheelSim = new FlywheelSim(
+        LinearSystemId.createFlywheelSystem(cim, LAUNCHER_MOI, 1.0), cim);
+    feederFlywheelSim = new FlywheelSim(
+        LinearSystemId.createFlywheelSystem(cim, FEEDER_MOI, 1.0), cim);
   }
 
   // A method to set the voltage of the intake roller
@@ -68,5 +89,22 @@ public class CANFuelSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
+  }
+
+  @Override
+  public void simulationPeriodic() {
+    double vbus = RobotController.getBatteryVoltage();
+
+    launcherFlywheelSim.setInputVoltage(launcherSim.getAppliedOutput() * vbus);
+    feederFlywheelSim.setInputVoltage(feederSim.getAppliedOutput() * vbus);
+
+    launcherFlywheelSim.update(0.02);
+    feederFlywheelSim.update(0.02);
+
+    double launcherRPM = launcherFlywheelSim.getAngularVelocityRPM();
+    double feederRPM = feederFlywheelSim.getAngularVelocityRPM();
+
+    launcherSim.iterate(launcherRPM, vbus, 0.02);
+    feederSim.iterate(feederRPM, vbus, 0.02);
   }
 }

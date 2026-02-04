@@ -5,15 +5,23 @@
 
 package frc.robot.subsystems;
 
+import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.config.SparkMaxConfig;
+import com.revrobotics.sim.SparkMaxSim;
 
+import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
+import edu.wpi.first.wpilibj.simulation.BatterySim;
+import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
+import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.DriveConstants.*;
+import static frc.robot.Constants.SimConstants.*;
 
 public class CANDriveSubsystem extends SubsystemBase {
   private final SparkMax leftLeader;
@@ -22,6 +30,13 @@ public class CANDriveSubsystem extends SubsystemBase {
   private final SparkMax rightFollower;
 
   private final DifferentialDrive drive;
+  private final RelativeEncoder leftEncoder;
+  private final RelativeEncoder rightEncoder;
+
+  // Simulation support
+  private SparkMaxSim leftLeaderSim;
+  private SparkMaxSim rightLeaderSim;
+  private DifferentialDrivetrainSim drivetrainSim;
 
   public CANDriveSubsystem() {
     // create brushed motors for drive
@@ -52,6 +67,14 @@ public class CANDriveSubsystem extends SubsystemBase {
     leaderConfig.voltageCompensation(12);
     leaderConfig.smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
 
+    // Configure encoder conversion factors so readings are in meters and m/s
+    double positionFactor = (2 * Math.PI * WHEEL_RADIUS_METERS) / DRIVE_GEAR_RATIO;
+    double velocityFactor = positionFactor / 60.0;
+    leaderConfig.encoder
+        .countsPerRevolution(ENCODER_CPR)
+        .positionConversionFactor(positionFactor)
+        .velocityConversionFactor(velocityFactor);
+
     // Left side inverted so that positive values drive both sides forward
     SparkMaxConfig leftLeaderConfig = new SparkMaxConfig().apply(leaderConfig);
     leftLeaderConfig.inverted(true);
@@ -67,10 +90,64 @@ public class CANDriveSubsystem extends SubsystemBase {
     SparkMaxConfig rightFollowerConfig = new SparkMaxConfig().apply(leaderConfig);
     rightFollowerConfig.follow(rightLeader);
     rightFollower.configure(rightFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    leftEncoder = leftLeader.getEncoder();
+    rightEncoder = rightLeader.getEncoder();
+
+    // Initialize simulation objects
+    DCMotor driveMotor = DCMotor.getCIM(2);
+    leftLeaderSim = new SparkMaxSim(leftLeader, driveMotor);
+    rightLeaderSim = new SparkMaxSim(rightLeader, driveMotor);
+    drivetrainSim = new DifferentialDrivetrainSim(
+        driveMotor,
+        DRIVE_GEAR_RATIO,
+        DRIVE_MOI,
+        ROBOT_MASS_KG,
+        WHEEL_RADIUS_METERS,
+        TRACK_WIDTH_METERS,
+        null); // standard measurement noise
   }
 
   @Override
   public void periodic() {
+  }
+
+  @Override
+  public void simulationPeriodic() {
+    double vbus = RobotController.getBatteryVoltage();
+    drivetrainSim.setInputs(
+        leftLeaderSim.getAppliedOutput() * vbus,
+        rightLeaderSim.getAppliedOutput() * vbus);
+    drivetrainSim.update(0.02);
+
+    double leftVelocityRPM =
+        drivetrainSim.getLeftVelocityMetersPerSecond()
+            / (WHEEL_RADIUS_METERS * 2 * Math.PI) * 60.0 * DRIVE_GEAR_RATIO;
+    double rightVelocityRPM =
+        drivetrainSim.getRightVelocityMetersPerSecond()
+            / (WHEEL_RADIUS_METERS * 2 * Math.PI) * 60.0 * DRIVE_GEAR_RATIO;
+
+    leftLeaderSim.iterate(leftVelocityRPM, vbus, 0.02);
+    rightLeaderSim.iterate(rightVelocityRPM, vbus, 0.02);
+
+    RoboRioSim.setVInVoltage(
+        BatterySim.calculateDefaultBatteryLoadedVoltage(drivetrainSim.getCurrentDrawAmps()));
+  }
+
+  public double getLeftPosition() {
+    return leftEncoder.getPosition();
+  }
+
+  public double getRightPosition() {
+    return rightEncoder.getPosition();
+  }
+
+  public double getLeftVelocity() {
+    return leftEncoder.getVelocity();
+  }
+
+  public double getRightVelocity() {
+    return rightEncoder.getVelocity();
   }
 
   public void driveArcade(double xSpeed, double zRotation) {
