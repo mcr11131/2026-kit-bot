@@ -6,10 +6,13 @@
 package frc.robot.subsystems;
 
 import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
+import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.sim.SparkMaxSim;
 
@@ -29,7 +32,8 @@ public class CANDriveSubsystem extends SubsystemBase {
   private final SparkMax rightLeader;
   private final SparkMax rightFollower;
 
-  private final DifferentialDrive drive;
+  private final SparkClosedLoopController leftController;
+  private final SparkClosedLoopController rightController;
   private final RelativeEncoder leftEncoder;
   private final RelativeEncoder rightEncoder;
 
@@ -46,9 +50,6 @@ public class CANDriveSubsystem extends SubsystemBase {
     leftFollower = new SparkMax(LEFT_FOLLOWER_ID, MotorType.kBrushed);
     rightLeader = new SparkMax(RIGHT_LEADER_ID, MotorType.kBrushed);
     rightFollower = new SparkMax(RIGHT_FOLLOWER_ID, MotorType.kBrushed);
-
-    // set up differential drive class
-    drive = new DifferentialDrive(leftLeader, rightLeader);
 
     // Set can timeout. Because this project only sets parameters once on
     // construction, the timeout can be long without blocking robot operation. Code
@@ -77,6 +78,12 @@ public class CANDriveSubsystem extends SubsystemBase {
         .positionConversionFactor(positionFactor)
         .velocityConversionFactor(velocityFactor);
 
+    // Configure velocity PID + feedforward on the SparkMax
+    leaderConfig.closedLoop
+        .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
+        .p(DRIVE_KP)
+        .velocityFF(DRIVE_KFF);
+
     // Left side inverted so that positive values drive both sides forward
     SparkMaxConfig leftLeaderConfig = new SparkMaxConfig().apply(leaderConfig);
     leftLeaderConfig.inverted(true);
@@ -93,6 +100,8 @@ public class CANDriveSubsystem extends SubsystemBase {
     rightFollowerConfig.follow(rightLeader);
     rightFollower.configure(rightFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
+    leftController = leftLeader.getClosedLoopController();
+    rightController = rightLeader.getClosedLoopController();
     leftEncoder = leftLeader.getEncoder();
     rightEncoder = rightLeader.getEncoder();
 
@@ -157,7 +166,9 @@ public class CANDriveSubsystem extends SubsystemBase {
   }
 
   public void driveArcade(double xSpeed, double zRotation) {
-    drive.arcadeDrive(xSpeed, zRotation);
+    var speeds = DifferentialDrive.arcadeDriveIK(xSpeed, zRotation, true);
+    leftController.setReference(speeds.left * MAX_SPEED_MPS, ControlType.kVelocity);
+    rightController.setReference(speeds.right * MAX_SPEED_MPS, ControlType.kVelocity);
   }
 
 }

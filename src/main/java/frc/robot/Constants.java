@@ -25,6 +25,11 @@ public final class Constants {
     // Encoder counts per revolution for REV Through Bore Encoder
     public static final int ENCODER_CPR = 8192;
 
+    // CIM free speed 5310 RPM / 8.45 gear ratio × 2π × 0.076m wheel radius / 60
+    public static final double MAX_SPEED_MPS = 5.0;
+    public static final double DRIVE_KFF = 0.2; // ≈ 1 / MAX_SPEED_MPS
+    public static final double DRIVE_KP = 0.1;
+
     // Current limit for drivetrain motors. 60A is a reasonable maximum to reduce
     // likelihood of tripping breakers or damaging CIM motors
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 60;
