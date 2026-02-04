@@ -1,7 +1,7 @@
 // Copyright (c) FIRST and other WPILib contributors.
 // Open Source Software; you can modify and/or share it under the terms of
 // the WPILib BSD license file in the root directory of this project.
-// AAAAAAAAAAAAAAAA
+
 
 package frc.robot.subsystems;
 
@@ -41,31 +41,32 @@ public class CANDriveSubsystem extends SubsystemBase {
     leftFollower.setCANTimeout(250);
     rightFollower.setCANTimeout(250);
 
-    // Create the configuration to apply to motors. Voltage compensation
-    // helps the robot perform more similarly on different
+    // Voltage compensation helps the robot perform more similarly on different
     // battery voltages (at the cost of a little bit of top speed on a fully charged
-    // battery). The current limit helps prevent tripping
-    // breakers.
-    SparkMaxConfig config = new SparkMaxConfig();
-    config.voltageCompensation(12);
-    config.smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
+    // battery). The current limit helps prevent tripping breakers.
+    // Resetting in case a new controller is swapped in and persisting in case of a
+    // controller reset due to breaker trip.
 
-    // Set configuration to follow each leader and then apply it to corresponding
-    // follower. Resetting in case a new controller is swapped
-    // in and persisting in case of a controller reset due to breaker trip
+    // Configure leaders first
+    SparkMaxConfig leaderConfig = new SparkMaxConfig();
+    leaderConfig.voltageCompensation(12);
+    leaderConfig.smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
 
-    config.follow(leftLeader);
-    leftFollower.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    config.follow(rightLeader);
-    rightFollower.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    // Left side inverted so that positive values drive both sides forward
+    SparkMaxConfig leftLeaderConfig = new SparkMaxConfig().apply(leaderConfig);
+    leftLeaderConfig.inverted(true);
+    leftLeader.configure(leftLeaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    // Remove following, then apply config to right leader
-    config.disableFollowerMode();
-    rightLeader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
-    // Set config to inverted and then apply to left leader. Set Left side inverted
-    // so that postive values drive both sides forward
-    config.inverted(true);
-    leftLeader.configure(config, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    rightLeader.configure(leaderConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    // Configure followers to match their respective leaders
+    SparkMaxConfig leftFollowerConfig = new SparkMaxConfig().apply(leaderConfig);
+    leftFollowerConfig.follow(leftLeader);
+    leftFollower.configure(leftFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    SparkMaxConfig rightFollowerConfig = new SparkMaxConfig().apply(leaderConfig);
+    rightFollowerConfig.follow(rightLeader);
+    rightFollower.configure(rightFollowerConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
   }
 
   @Override
