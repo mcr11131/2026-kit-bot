@@ -33,8 +33,8 @@ public class CANFuelSubsystem extends SubsystemBase {
   /** Creates a new CANBallSubsystem. */
   public CANFuelSubsystem() {
     // create brushed motors for each of the motors on the launcher mechanism
-    intakeLauncherRoller = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushed);
-    feederRoller = new SparkMax(FEEDER_MOTOR_ID, MotorType.kBrushed);
+    intakeLauncherRoller = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
+    feederRoller = new SparkMax(FEEDER_MOTOR_ID, MotorType.kBrushless);
 
     // create the configuration for the feeder roller, set a current limit and apply
     // the config to the controller
@@ -61,13 +61,13 @@ public class CANFuelSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Spin-up feeder roller value", SPIN_UP_FEEDER_VOLTAGE);
 
     // Initialize simulation objects
-    DCMotor cim = DCMotor.getCIM(1);
-    launcherSim = new SparkMaxSim(intakeLauncherRoller, cim);
-    feederSim = new SparkMaxSim(feederRoller, cim);
+    DCMotor neo = DCMotor.getNEO(1);
+    launcherSim = new SparkMaxSim(intakeLauncherRoller, neo);
+    feederSim = new SparkMaxSim(feederRoller, neo);
     launcherFlywheelSim = new FlywheelSim(
-        LinearSystemId.createFlywheelSystem(cim, LAUNCHER_MOI, 1.0), cim);
+        LinearSystemId.createFlywheelSystem(neo, LAUNCHER_MOI, 1.0), neo);
     feederFlywheelSim = new FlywheelSim(
-        LinearSystemId.createFlywheelSystem(cim, FEEDER_MOI, 1.0), cim);
+        LinearSystemId.createFlywheelSystem(neo, FEEDER_MOI, 1.0), neo);
   }
 
   // A method to set the voltage of the intake roller
