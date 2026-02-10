@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import static frc.robot.Constants.DriveConstants.*;
+
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CANDriveSubsystem;
 
@@ -32,7 +34,15 @@ public class AutoDrive extends Command {
 
   @Override
   public void execute() {
-    driveSubsystem.driveArcade(xSpeed, zRotation);
+    // Use encoder difference to correct heading drift when driving straight.
+    // If the left side has traveled further than the right, the robot has veered
+    // right, so we steer left (subtract correction) to compensate.
+    double leftDelta = driveSubsystem.getLeftPosition() - startLeftPosition;
+    double rightDelta = driveSubsystem.getRightPosition() - startRightPosition;
+    double error = leftDelta - rightDelta;
+    double correction = error * STRAIGHT_KP;
+
+    driveSubsystem.driveArcade(xSpeed, zRotation - correction);
   }
 
   @Override
