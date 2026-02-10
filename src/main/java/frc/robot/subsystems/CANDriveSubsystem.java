@@ -171,4 +171,11 @@ public class CANDriveSubsystem extends SubsystemBase {
     rightController.setReference(speeds.right * MAX_SPEED_MPS, ControlType.kVelocity);
   }
 
+   public void driveTank(double lSpeed, double rSpeed) {
+    var speeds = DifferentialDrive.tankDriveIK(lSpeed, rSpeed, true);
+    leftController.setSetpoint(speeds.left * TANK_SPEED_MODIFIER, ControlType.kDutyCycle);
+    rightController.setSetpoint(speeds.right *TANK_SPEED_MODIFIER, ControlType.kDutyCycle);
+  }
+
+
 }

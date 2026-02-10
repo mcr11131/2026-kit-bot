@@ -36,9 +36,9 @@ public class Drive extends Command {
   // controllable.
   @Override
   public void execute() {
-    driveSubsystem.driveArcade(
+    driveSubsystem.driveTank( //set to .driveArcade and change the second axis to 4 for arcade drive
         -MathUtil.applyDeadband(controller.getRawAxis(1), 0.05) * DRIVE_SCALING,
-        -MathUtil.applyDeadband(controller.getRawAxis(4), 0.05) * ROTATION_SCALING);
+        -MathUtil.applyDeadband(controller.getRawAxis(5), 0.05) * ROTATION_SCALING);
   }
 
   // Called once the command ends or is interrupted.
