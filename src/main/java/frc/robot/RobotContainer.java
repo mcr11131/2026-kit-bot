@@ -4,6 +4,7 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
@@ -48,6 +49,8 @@ public class RobotContainer {
   // The autonomous chooser
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
+  private final DigitalInput downLimitSwitch = new DigitalInput(0);
+
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
@@ -83,9 +86,9 @@ public class RobotContainer {
     driverController.button(2).whileTrue(new Eject(fuelSubsystem));
 
     //Climb until limit switch when while back button is pushed.
-    driverController.button(7).whileTrue(new Climb(climbSubsystem, true));
+    driverController.button(7).whileTrue(new Climb(climbSubsystem, true, downLimitSwitch));
     //Unclimb while start button is pushed
-    driverController.button(8).whileTrue(new Climb(climbSubsystem, false));
+    driverController.button(8).whileTrue(new Climb(climbSubsystem, false, downLimitSwitch));
 
 
 

@@ -4,6 +4,7 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CANClimbSubsystem;
@@ -15,11 +16,14 @@ public class Climb extends Command {
 
   CANClimbSubsystem climbSubsystem;
   boolean down;
+  DigitalInput limitSwitch;
 
-  public Climb(CANClimbSubsystem climbSystem, boolean down) {
+
+  public Climb(CANClimbSubsystem climbSystem, boolean down, DigitalInput limitSwitch) {
     addRequirements(climbSystem);
     this.climbSubsystem = climbSystem;
     this.down = down;
+    this.limitSwitch = limitSwitch;
     
   }
 
@@ -27,7 +31,7 @@ public class Climb extends Command {
   // appropriate values for intaking
   @Override
   public void initialize() {
-    if(down){
+    if(down && !limitSwitch.get()){
         climbSubsystem.setClimbers(CLIMBER_DOWN_SPEED);
     }
     else{
