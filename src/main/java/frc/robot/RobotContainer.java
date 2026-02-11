@@ -10,13 +10,17 @@ import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import static frc.robot.Constants.OperatorConstants.*;
+
+import frc.robot.commands.Climb;
 import frc.robot.commands.Drive;
 import frc.robot.commands.Eject;
 import frc.robot.commands.ExampleAuto;
 import frc.robot.commands.Intake;
 import frc.robot.commands.LaunchSequence;
+import frc.robot.subsystems.CANClimbSubsystem;
 import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
+import frc.robot.subsystems.CANClimbSubsystem;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -28,7 +32,9 @@ import frc.robot.subsystems.CANFuelSubsystem;
 public class RobotContainer {
   // The robot's subsystems
   private final CANDriveSubsystem driveSubsystem = new CANDriveSubsystem();
-  private final CANFuelSubsystem fuelSubsystem = new CANFuelSubsystem();
+  private final CANFuelSubsystem fuelSubsystem = new CANFuelSubsystem(); 
+  private final CANClimbSubsystem climbSubsystem = new CANClimbSubsystem();
+
 
   // The driver's controller
   private final CommandGenericHID driverController = new CommandGenericHID(DRIVER_CONTROLLER_PORT);
@@ -75,6 +81,13 @@ public class RobotContainer {
     // While the A button is held on the operator controller, eject fuel back out
     // the intake
     driverController.button(2).whileTrue(new Eject(fuelSubsystem));
+
+    //Climb until limit switch when while back button is pushed.
+    driverController.button(7).whileTrue(new Climb(climbSubsystem, true));
+    //Unclimb while start button is pushed
+    driverController.button(8).whileTrue(new Climb(climbSubsystem, false));
+
+
 
     // Set the default command for the drive subsystem to the command provided by
     // factory with the values provided by the joystick axes on the driver

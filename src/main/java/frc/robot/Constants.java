@@ -65,6 +65,23 @@ public final class Constants {
     public static final double EJECT_LAUNCHER_VOLTAGE = 10;
   }
 
+  public static final class ClimberConstants {
+    //Climber Sparks
+    public static final int CLIMBER_ONE = 14;
+    public static final int CLIMBER_TWO = 16;
+
+    // Current limit and nominal voltage for fuel mechanism motors.
+    public static final int CLIMBER_ONE_CURRENT_LIMIT = 60;
+    public static final int CLIMBER_TWO_CURRENT_LIMIT = 60;
+
+    //Climber voltage
+    public static final double CLIMBER_DOWN_SPEED = -1;
+    public static final double CLIMBER_UP_SPEED = 1;
+
+    //CLIMBER SPEED
+    public static final double speed = 1;
+  }
+
   public static final class SimConstants {
     public static final double TRACK_WIDTH_METERS = 0.546; // 21.5 inches
     public static final double WHEEL_RADIUS_METERS = 0.076; // 6 inch wheels
