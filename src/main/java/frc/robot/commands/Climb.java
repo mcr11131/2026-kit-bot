@@ -31,7 +31,7 @@ public class Climb extends Command {
   // appropriate values for intaking
   @Override
   public void initialize() {
-    if(down && !limitSwitch.get()){
+    if(down){
         climbSubsystem.setClimbers(CLIMBER_DOWN_SPEED);
     }
     else{
