@@ -75,8 +75,8 @@ public final class Constants {
     public static final int CLIMBER_TWO_CURRENT_LIMIT = 60;
 
     //Climber voltage
-    public static final double CLIMBER_DOWN_SPEED = -1;
-    public static final double CLIMBER_UP_SPEED = 1;
+    public static final double CLIMBER_DOWN_SPEED = -0.2;
+    public static final double CLIMBER_UP_SPEED = 0.2;
 
     //CLIMBER SPEED
     public static final double speed = 1;

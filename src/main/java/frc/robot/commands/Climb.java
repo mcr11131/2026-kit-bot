@@ -31,10 +31,10 @@ public class Climb extends Command {
   // appropriate values for intaking
   @Override
   public void initialize() {
-    if(down){
+    if(down & !limitSwitch.get()){
         climbSubsystem.setClimbers(CLIMBER_DOWN_SPEED);
     }
-    else{
+    else if (!limitSwitch.get()) {
         climbSubsystem.setClimbers(CLIMBER_UP_SPEED);
     }
     //climbSubsystem.setFeederRoller(SmartDashboard.getNumber("Intaking feeder roller value", INTAKING_FEEDER_VOLTAGE));

@@ -50,13 +50,15 @@ public class RobotContainer {
   // The autonomous chooser
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
-  private final DigitalInput downLimitSwitch = new DigitalInput(0);
+  private final DigitalInput downLimitSwitchLeft = new DigitalInput(0);
+  private final DigitalInput downLimitSwitchRight = new DigitalInput(1);
+
 
 
   //The encoders
   //Encoders are in 10 and 12
-  //private final Encoder leftEncoder = new Encoder(LEFT_LEADER_ID, 10);
-  //private final Encoder rightEncoder = new Encoder(RIGHT_LEADER_ID, 12);
+  //private final Encoder leftEncoder = new Encoder(Constants.DriveConstants.LEFT_LEADER_ID, 10);
+  //private final Encoder rightEncoder = new Encoder(Constants.DriveConstants.RIGHT_LEADER_ID, 12);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
@@ -93,9 +95,9 @@ public class RobotContainer {
     driverController.button(2).whileTrue(new Eject(fuelSubsystem));
 
     //Climb until limit switch when while back button is pushed.
-    driverController.button(7).whileTrue(new Climb(climbSubsystem, true, downLimitSwitch));
+    driverController.button(7).whileTrue(new Climb(climbSubsystem, true, downLimitSwitchLeft));
     //Unclimb while start button is pushed
-    driverController.button(8).whileTrue(new Climb(climbSubsystem, false, downLimitSwitch));
+    driverController.button(8).whileTrue(new Climb(climbSubsystem, false, downLimitSwitchLeft));
 
 
 
