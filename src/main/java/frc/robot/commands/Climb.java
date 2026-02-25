@@ -10,6 +10,8 @@ import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CANClimbSubsystem;
 import static frc.robot.Constants.ClimberConstants.*;
 
+import javax.naming.LimitExceededException;
+
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class Climb extends Command {
   /** Creates a new Intake. */
@@ -17,13 +19,15 @@ public class Climb extends Command {
   CANClimbSubsystem climbSubsystem;
   boolean down;
   DigitalInput limitSwitch;
+  boolean left;
 
 
-  public Climb(CANClimbSubsystem climbSystem, boolean down, DigitalInput limitSwitch) {
+  public Climb(CANClimbSubsystem climbSystem, boolean down, DigitalInput limitSwitch, boolean left) {
     addRequirements(climbSystem);
     this.climbSubsystem = climbSystem;
     this.down = down;
     this.limitSwitch = limitSwitch;
+    this.left = left;
     
   }
 
@@ -31,11 +35,15 @@ public class Climb extends Command {
   // appropriate values for intaking
   @Override
   public void initialize() {
-    if(down & !limitSwitch.get()){
-        climbSubsystem.setClimbers(CLIMBER_DOWN_SPEED);
+    if(down && limitSwitch.get() && left){
+        climbSubsystem.setLeft(CLIMBER_DOWN_SPEED);
     }
-    else if (!limitSwitch.get()) {
-        climbSubsystem.setClimbers(CLIMBER_UP_SPEED);
+    else if (!down && left){
+        climbSubsystem.setLeft(CLIMBER_UP_SPEED);
+    } else if (down && limitSwitch.get() && !left) {
+        climbSubsystem.setRight(CLIMBER_DOWN_SPEED);
+    } else if (!down && !left) {
+        climbSubsystem.setRight(CLIMBER_UP_SPEED);
     }
     //climbSubsystem.setFeederRoller(SmartDashboard.getNumber("Intaking feeder roller value", INTAKING_FEEDER_VOLTAGE));
   }

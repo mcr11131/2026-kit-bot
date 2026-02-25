@@ -58,11 +58,17 @@ public class CANClimbSubsystem extends SubsystemBase {
   }
 
   // A method to set the voltage of the intake roller
-  public void setClimbers(double speed) {
+  /*public void setClimbers(double speed) {
     climberOne.set(speed);
     climberTwo.set(-speed);
+  }*/
+  
+  public void setLeft(double speed) {
+    climberOne.set(speed);
   }
-
+  public void setRight(double speed) {
+    climberTwo.set(speed);
+  }
   
 
   // A method to stop the rollers

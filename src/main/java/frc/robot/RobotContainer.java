@@ -50,9 +50,7 @@ public class RobotContainer {
   // The autonomous chooser
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
-  private final DigitalInput downLimitSwitchLeft = new DigitalInput(0);
-  private final DigitalInput downLimitSwitchRight = new DigitalInput(1);
-
+  private final DigitalInput downLimitSwitch = new DigitalInput(0);
 
 
   //The encoders
@@ -95,10 +93,18 @@ public class RobotContainer {
     driverController.button(2).whileTrue(new Eject(fuelSubsystem));
 
     //Climb until limit switch when while back button is pushed.
-    driverController.button(7).whileTrue(new Climb(climbSubsystem, true, downLimitSwitchLeft));
+    //driverController.button(7).whileTrue(new Climb(climbSubsystem, true, downLimitSwitchLeft));
     //Unclimb while start button is pushed
-    driverController.button(8).whileTrue(new Climb(climbSubsystem, false, downLimitSwitchLeft));
+    //driverController.button(8).whileTrue(new Climb(climbSubsystem, false, downLimitSwitchLeft));
+    //Climb left when dpad is on up
+    driverController.povUp().whileTrue(new Climb(climbSubsystem, false, downLimitSwitch, true));
+    //Unclimb left when dpad is on down
+    driverController.povDown().whileTrue(new Climb(climbSubsystem, true, downLimitSwitch, true));
 
+    //Climb right when Y is pushed
+    driverController.button(1).whileTrue(new Climb(climbSubsystem, false, downLimitSwitch, false));
+    //Unclimb right when A is pushed
+    driverController.button(4).whileTrue(new Climb(climbSubsystem, true, downLimitSwitch, false));
 
 
     // Set the default command for the drive subsystem to the command provided by
