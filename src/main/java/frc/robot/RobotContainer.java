@@ -19,6 +19,7 @@ import frc.robot.commands.Eject;
 import frc.robot.commands.ExampleAuto;
 import frc.robot.commands.Intake;
 import frc.robot.commands.LaunchSequence;
+import frc.robot.commands.Tracking;
 import frc.robot.subsystems.CANClimbSubsystem;
 import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
@@ -97,14 +98,18 @@ public class RobotContainer {
     //Unclimb while start button is pushed
     //driverController.button(8).whileTrue(new Climb(climbSubsystem, false, downLimitSwitchLeft));
     //Climb left when dpad is on up
-    driverController.povUp().whileTrue(new Climb(climbSubsystem, false, downLimitSwitch, true));
+    driverController.povUp().whileTrue(new Climb(climbSubsystem, false, downLimitSwitch, driverController));
     //Unclimb left when dpad is on down
-    driverController.povDown().whileTrue(new Climb(climbSubsystem, true, downLimitSwitch, true));
+    driverController.povDown().whileTrue(new Climb(climbSubsystem, true, downLimitSwitch, driverController));
 
     //Climb right when Y is pushed
-    driverController.button(1).whileTrue(new Climb(climbSubsystem, false, downLimitSwitch, false));
+    driverController.button(1).whileTrue(new Climb(climbSubsystem, false, downLimitSwitch, driverController));
     //Unclimb right when A is pushed
-    driverController.button(4).whileTrue(new Climb(climbSubsystem, true, downLimitSwitch, false));
+    driverController.button(4).whileTrue(new Climb(climbSubsystem, true, downLimitSwitch, driverController));
+    
+    //Align to april tag when X is pushed
+    driverController.button(3).whileTrue(new Tracking(driveSubsystem));
+
 
 
     // Set the default command for the drive subsystem to the command provided by
@@ -115,6 +120,8 @@ public class RobotContainer {
     driveSubsystem.setDefaultCommand(new Drive(driveSubsystem, driverController));
 
     fuelSubsystem.setDefaultCommand(fuelSubsystem.run(() -> fuelSubsystem.stop()));
+
+    climbSubsystem.setDefaultCommand(new Climb(climbSubsystem, false, downLimitSwitch, driverController));
   }
 
   /**

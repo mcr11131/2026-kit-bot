@@ -7,6 +7,8 @@ package frc.robot.commands;
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
+import frc.robot.RobotContainer;
 import frc.robot.subsystems.CANClimbSubsystem;
 import static frc.robot.Constants.ClimberConstants.*;
 
@@ -20,14 +22,15 @@ public class Climb extends Command {
   boolean down;
   DigitalInput limitSwitch;
   boolean left;
+  CommandGenericHID driverController;
 
 
-  public Climb(CANClimbSubsystem climbSystem, boolean down, DigitalInput limitSwitch, boolean left) {
+  public Climb(CANClimbSubsystem climbSystem, boolean down, DigitalInput limitSwitch, CommandGenericHID driverController) {
     addRequirements(climbSystem);
     this.climbSubsystem = climbSystem;
     this.down = down;
     this.limitSwitch = limitSwitch;
-    this.left = left;
+    this.driverController = driverController;
     
   }
 
@@ -35,12 +38,14 @@ public class Climb extends Command {
   // appropriate values for intaking
   @Override
   public void initialize() {
-    if(down && limitSwitch.get() && left){
+    if(down && !limitSwitch.get() && left){
         climbSubsystem.setLeft(CLIMBER_DOWN_SPEED);
-    }
-    else if (!down && left){
+        if(down && !left) {
+
+        }
+    } else if (!down && left){
         climbSubsystem.setLeft(CLIMBER_UP_SPEED);
-    } else if (down && limitSwitch.get() && !left) {
+    } else if (down && !limitSwitch.get() && !left) {
         climbSubsystem.setRight(CLIMBER_DOWN_SPEED);
     } else if (!down && !left) {
         climbSubsystem.setRight(CLIMBER_UP_SPEED);
@@ -52,6 +57,22 @@ public class Climb extends Command {
   // command doesn't require updating any values while running
   @Override
   public void execute() {
+    if(driverController.povUp().getAsBoolean()) {
+      climbSubsystem.setLeft(CLIMBER_UP_SPEED);
+    } else if (driverController.povDown().getAsBoolean()) {
+      climbSubsystem.setLeft(CLIMBER_DOWN_SPEED);
+    } else {
+      climbSubsystem.leftstop();
+    }
+    
+    if(driverController.button(1).getAsBoolean()) {
+      climbSubsystem.setRight(CLIMBER_UP_SPEED);
+    } else if (driverController.button(4).getAsBoolean()) {
+      climbSubsystem.setRight(CLIMBER_DOWN_SPEED);
+    } else {
+      climbSubsystem.rightstop();
+    }
+    
   }
 
   // Called once the command ends or is interrupted. Stop the rollers
@@ -66,3 +87,13 @@ public class Climb extends Command {
     return false;
   }
 }
+
+
+/*
+if downleft.pressed
+  run left down
+else if upleft.pressed
+  run left up
+else
+  left.Stop
+*/

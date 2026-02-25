@@ -77,6 +77,13 @@ public class CANClimbSubsystem extends SubsystemBase {
     climberTwo.set(0);
   }
 
+  public void leftstop() {
+    climberOne.set(0);
+  }
+  public void rightstop() {
+    climberTwo.set(0);
+  }
+
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
