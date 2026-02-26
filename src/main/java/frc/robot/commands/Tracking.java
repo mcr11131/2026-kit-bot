@@ -9,7 +9,6 @@ import static frc.robot.Constants.OperatorConstants.*;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CANDriveSubsystem;
-import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import frc.robot.LimelightHelpers;
 
 
@@ -17,7 +16,6 @@ import frc.robot.LimelightHelpers;
 public class Tracking extends Command {
   /** Creates a new Drive. */
   CANDriveSubsystem driveSubsystem;
-  CommandGenericHID controller;
 
   public Tracking(CANDriveSubsystem driveSystem) {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -37,8 +35,12 @@ public class Tracking extends Command {
   // controllable.
   @Override
   public void execute() {
+    if (!LimelightHelpers.getTV("limelight")) {
+      driveSubsystem.driveArcade(0, 0);
+      return;
+    }
     double xOffset = LimelightHelpers.getTX("limelight");
-    driveSubsystem.driveTank( //set to .driveArcade and change the second axis to 4 for arcade drive
+    driveSubsystem.driveArcade(
         0,
         -MathUtil.applyDeadband(speedToDrive(xOffset), 0.05) * ROTATION_SCALING);
   }

@@ -23,7 +23,6 @@ import frc.robot.commands.Tracking;
 import frc.robot.subsystems.CANClimbSubsystem;
 import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
-import frc.robot.subsystems.CANClimbSubsystem;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -97,16 +96,6 @@ public class RobotContainer {
     //driverController.button(7).whileTrue(new Climb(climbSubsystem, true, downLimitSwitchLeft));
     //Unclimb while start button is pushed
     //driverController.button(8).whileTrue(new Climb(climbSubsystem, false, downLimitSwitchLeft));
-    //Climb left when dpad is on up
-    driverController.povUp().whileTrue(new Climb(climbSubsystem, false, downLimitSwitch, driverController));
-    //Unclimb left when dpad is on down
-    driverController.povDown().whileTrue(new Climb(climbSubsystem, true, downLimitSwitch, driverController));
-
-    //Climb right when Y is pushed
-    driverController.button(1).whileTrue(new Climb(climbSubsystem, false, downLimitSwitch, driverController));
-    //Unclimb right when A is pushed
-    driverController.button(4).whileTrue(new Climb(climbSubsystem, true, downLimitSwitch, driverController));
-    
     //Align to april tag when X is pushed
     driverController.button(3).whileTrue(new Tracking(driveSubsystem));
 

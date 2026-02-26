@@ -12,7 +12,6 @@ import frc.robot.RobotContainer;
 import frc.robot.subsystems.CANClimbSubsystem;
 import static frc.robot.Constants.ClimberConstants.*;
 
-import javax.naming.LimitExceededException;
 
 /* You should consider using the more terse Command factories API instead https://docs.wpilib.org/en/stable/docs/software/commandbased/organizing-command-based.html#defining-commands */
 public class Climb extends Command {
@@ -21,7 +20,6 @@ public class Climb extends Command {
   CANClimbSubsystem climbSubsystem;
   boolean down;
   DigitalInput limitSwitch;
-  boolean left;
   CommandGenericHID driverController;
 
 
@@ -38,19 +36,7 @@ public class Climb extends Command {
   // appropriate values for intaking
   @Override
   public void initialize() {
-    if(down && !limitSwitch.get() && left){
-        climbSubsystem.setLeft(CLIMBER_DOWN_SPEED);
-        if(down && !left) {
-
-        }
-    } else if (!down && left){
-        climbSubsystem.setLeft(CLIMBER_UP_SPEED);
-    } else if (down && !limitSwitch.get() && !left) {
-        climbSubsystem.setRight(CLIMBER_DOWN_SPEED);
-    } else if (!down && !left) {
-        climbSubsystem.setRight(CLIMBER_UP_SPEED);
-    }
-    //climbSubsystem.setFeederRoller(SmartDashboard.getNumber("Intaking feeder roller value", INTAKING_FEEDER_VOLTAGE));
+    // Climb control is handled entirely in execute() via button state checks
   }
 
   // Called every time the scheduler runs while the command is scheduled. This
