@@ -16,6 +16,8 @@ public class Drive extends Command {
   /** Creates a new Drive. */
   CANDriveSubsystem driveSubsystem;
   CommandGenericHID controller;
+  boolean cameraFront = true;
+  boolean toggleLock = false;
 
   public Drive(CANDriveSubsystem driveSystem, CommandGenericHID driverController) {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -36,9 +38,30 @@ public class Drive extends Command {
   // controllable.
   @Override
   public void execute() {
-    driveSubsystem.driveTank( //set to .driveArcade and change the second axis to 4 for arcade drive
-        -MathUtil.applyDeadband(controller.getRawAxis(1), 0.05) * DRIVE_SCALING,
-        -MathUtil.applyDeadband(controller.getRawAxis(5), 0.05) * ROTATION_SCALING);
+    if (cameraFront == true) {
+      driveSubsystem.driveTank( // set to .driveArcade and change the second axis to 4 for arcade drive
+          -MathUtil.applyDeadband(controller.getRawAxis(1), 0.05) * DRIVE_SCALING,
+          -MathUtil.applyDeadband(controller.getRawAxis(5), 0.05) * ROTATION_SCALING);
+
+    } else {
+      driveSubsystem.driveTank( // set to .driveArcade and change the second axis to 4 for arcade drive
+          -MathUtil.applyDeadband(-controller.getRawAxis(1), 0.05) * DRIVE_SCALING,
+          -MathUtil.applyDeadband(-controller.getRawAxis(5), 0.05) * ROTATION_SCALING);
+    }
+    //Switch robot direction
+    if (controller.button(7).getAsBoolean() == true && toggleLock == false) {
+      if (cameraFront == true) {
+        //Direction of robot
+        cameraFront = false;
+        //Prevents it from looping
+        toggleLock = true;
+      } else {
+        cameraFront = true;
+        toggleLock = true;
+      }
+    } else if (controller.button(7).getAsBoolean() == false) {
+      toggleLock = false;
+    }
   }
 
   // Called once the command ends or is interrupted.

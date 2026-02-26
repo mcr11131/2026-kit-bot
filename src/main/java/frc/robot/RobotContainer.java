@@ -92,12 +92,11 @@ public class RobotContainer {
     // the intake
     driverController.button(2).whileTrue(new Eject(fuelSubsystem));
 
-    //Climb until limit switch when while back button is pushed.
-    //driverController.button(7).whileTrue(new Climb(climbSubsystem, true, downLimitSwitchLeft));
-    //Unclimb while start button is pushed
-    //driverController.button(8).whileTrue(new Climb(climbSubsystem, false, downLimitSwitchLeft));
     //Align to april tag when X is pushed
     driverController.button(3).whileTrue(new Tracking(driveSubsystem));
+
+    //Switch way robot is facing by reversing speed when back button is clicked
+    //driverController.button(7).toggleOnTrue();
 
 
 
