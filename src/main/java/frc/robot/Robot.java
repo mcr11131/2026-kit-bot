@@ -39,7 +39,7 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
 
     // Add Limelight camera stream to Shuffleboard/SmartDashboard
-    HttpCamera limelightFeed = new HttpCamera("limelight", "http://limelight.local:5800/stream.mjpg");
+    HttpCamera limelightFeed = new HttpCamera("limelight", "http://limelight.local:5800");
     CameraServer.addCamera(limelightFeed);
 
     // Used to track usage of Kitbot code, please do not remove.
