@@ -64,6 +64,9 @@ public final class Constants {
     //New code for ejecting voltage levels. Negative of intaking.
     public static final double EJECT_FEEDER_VOLTAGE = 12;
     public static final double EJECT_LAUNCHER_VOLTAGE = 10;
+
+    //General climb speed
+    public static final double speed = 1;
   }
 
   public static final class ClimberConstants {
@@ -101,7 +104,7 @@ public final class Constants {
 
     // This value is multiplied by the joystick value when rotating the robot to
     // help avoid turning too fast and beign difficult to control
-    public static final double DRIVE_SCALING = .8;
-    public static final double ROTATION_SCALING = .8;
+    public static final double DRIVE_SCALING = 1;
+    public static final double ROTATION_SCALING = 1;
   }
 }
