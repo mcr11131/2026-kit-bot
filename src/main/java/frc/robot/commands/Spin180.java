@@ -17,12 +17,12 @@ public class Spin180 extends Command {
   private final Timer timer = new Timer();
 
   // Time to spin 180 degrees - tune this value based on your robot
-  // Increased to 2.0 seconds to make it more noticeable for testing
-  private static final double SPIN_TIME = 2.0;
+  // Increased to 3.0 seconds to compensate for slow rotation
+  private static final double SPIN_TIME = 3.0;
 
   // Rotation speed (0.0 to 1.0) - adjust if spinning too fast/slow
-  // Increased to 0.7 for more obvious spinning
-  private static final double SPIN_SPEED = 0.7;
+  // Set to 1.0 (maximum power) for faster spinning
+  private static final double SPIN_SPEED = 1.0;
 
   public Spin180(CANDriveSubsystem driveSubsystem) {
     this.driveSubsystem = driveSubsystem;
