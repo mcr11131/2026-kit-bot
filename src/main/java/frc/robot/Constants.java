@@ -81,7 +81,6 @@ public final class Constants {
 
     //General climb speed
     public static final double speed = 1;
->>>>>>> 80df47d (Implement velocity control for intake and launcher motors)
   }
 
   public static final class ClimberConstants {
