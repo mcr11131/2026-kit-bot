@@ -22,6 +22,7 @@ import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.DriveConstants.*;
 import static frc.robot.Constants.SimConstants.*;
@@ -69,6 +70,8 @@ public class CANDriveSubsystem extends SubsystemBase {
     SparkMaxConfig leaderConfig = new SparkMaxConfig();
     leaderConfig.voltageCompensation(12);
     leaderConfig.smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
+    leaderConfig.closedLoopRampRate(DRIVE_OPEN_LOOP_RAMP_RATE);
+    leaderConfig.openLoopRampRate(DRIVE_OPEN_LOOP_RAMP_RATE);
 
     // Configure encoder conversion factors so readings are in meters and m/s
     double positionFactor = (2 * Math.PI * WHEEL_RADIUS_METERS) / DRIVE_GEAR_RATIO;
@@ -123,6 +126,18 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // Verbose logging for debugging motor issues
+    SmartDashboard.putNumber("Drive/Left Current", leftLeader.getOutputCurrent());
+    SmartDashboard.putNumber("Drive/Right Current", rightLeader.getOutputCurrent());
+    SmartDashboard.putNumber("Drive/Left Voltage", leftLeader.getAppliedOutput() * leftLeader.getBusVoltage());
+    SmartDashboard.putNumber("Drive/Right Voltage", rightLeader.getAppliedOutput() * rightLeader.getBusVoltage());
+    SmartDashboard.putNumber("Drive/Left Temperature", leftLeader.getMotorTemperature());
+    SmartDashboard.putNumber("Drive/Right Temperature", rightLeader.getMotorTemperature());
+    SmartDashboard.putNumber("Drive/Left Velocity", leftEncoder.getVelocity());
+    SmartDashboard.putNumber("Drive/Right Velocity", rightEncoder.getVelocity());
+    SmartDashboard.putNumber("Drive/Left Position", leftEncoder.getPosition());
+    SmartDashboard.putNumber("Drive/Right Position", rightEncoder.getPosition());
+    SmartDashboard.putNumber("Drive/Battery Voltage", RobotController.getBatteryVoltage());
   }
 
   @Override

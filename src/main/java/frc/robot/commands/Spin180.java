@@ -4,24 +4,24 @@
 
 package frc.robot.commands;
 
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CANDriveSubsystem;
+import static frc.robot.Constants.SimConstants.*;
 
 /**
- * Spins the robot 180 degrees in place.
- * Uses a timed rotation - adjust SPIN_TIME to calibrate for exactly 180 degrees.
+ * Spins the robot 180 degrees in place using encoders.
+ * Calculates the required wheel travel distance based on track width.
  */
 public class Spin180 extends Command {
   private final CANDriveSubsystem driveSubsystem;
-  private final Timer timer = new Timer();
+  private double leftStartPosition;
+  private double rightStartPosition;
 
-  // Time to spin 180 degrees - tune this value based on your robot
-  // Increased to 3.0 seconds to compensate for slow rotation
-  private static final double SPIN_TIME = 3.0;
+  // Distance each wheel needs to travel for a 180-degree turn (in meters)
+  // Arc length = (track_width / 2) * π radians
+  private static final double SPIN_DISTANCE = (TRACK_WIDTH_METERS / 2.0) * Math.PI;
 
-  // Rotation speed (0.0 to 1.0) - adjust if spinning too fast/slow
-  // Set to 1.0 (maximum power) for faster spinning
+  // Rotation speed (0.0 to 1.0) - full speed for quick spins
   private static final double SPIN_SPEED = 1.0;
 
   public Spin180(CANDriveSubsystem driveSubsystem) {
@@ -31,12 +31,14 @@ public class Spin180 extends Command {
 
   @Override
   public void initialize() {
-    timer.restart();
+    // Record starting positions
+    leftStartPosition = driveSubsystem.getLeftPosition();
+    rightStartPosition = driveSubsystem.getRightPosition();
   }
 
   @Override
   public void execute() {
-    // Spin in place by driving wheels in opposite directions
+    // Spin in place by driving wheels in opposite directions at full speed
     driveSubsystem.driveTank(SPIN_SPEED, -SPIN_SPEED);
   }
 
@@ -47,6 +49,11 @@ public class Spin180 extends Command {
 
   @Override
   public boolean isFinished() {
-    return timer.hasElapsed(SPIN_TIME);
+    // Check if either wheel has traveled the required distance
+    // Using absolute value because one wheel goes forward, one backward
+    double leftDistance = Math.abs(driveSubsystem.getLeftPosition() - leftStartPosition);
+    double rightDistance = Math.abs(driveSubsystem.getRightPosition() - rightStartPosition);
+
+    return leftDistance >= SPIN_DISTANCE || rightDistance >= SPIN_DISTANCE;
   }
 }
