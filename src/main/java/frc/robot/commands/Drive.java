@@ -32,28 +32,37 @@ public class Drive extends Command {
   }
 
   // Called every time the scheduler runs while the command is scheduled.
-  // The Y axis of the controller is inverted so that pushing the
-  // stick away from you (a negative value) drives the robot forwards (a positive
-  // value). The X axis is scaled down so the rotation is more easily
-  // controllable.
+  // Cheesy Drive (Curvature Drive):
+  // - Left stick Y-axis controls throttle (forward/backward)
+  // - Right stick X-axis controls turning (like a steering wheel)
+  // - Right trigger (axis 3) enables quick turn for sharp turns while moving
+  // The Y axis is inverted so that pushing the stick away from you (negative value)
+  // drives the robot forwards (positive value).
   @Override
   public void execute() {
-    if (cameraFront == true) {
-      driveSubsystem.driveTank( // set to .driveArcade and change the second axis to 4 for arcade drive
-          -MathUtil.applyDeadband(controller.getRawAxis(1), 0.05) * DRIVE_SCALING,
-          -MathUtil.applyDeadband(controller.getRawAxis(5), 0.05) * ROTATION_SCALING);
+    // Get throttle (forward/backward) from left stick Y-axis
+    double throttle = -MathUtil.applyDeadband(controller.getRawAxis(1), 0.05) * DRIVE_SCALING;
 
-    } else {
-      driveSubsystem.driveTank( // set to .driveArcade and change the second axis to 4 for arcade drive
-          -MathUtil.applyDeadband(-controller.getRawAxis(1), 0.05) * DRIVE_SCALING,
-          -MathUtil.applyDeadband(-controller.getRawAxis(5), 0.05) * ROTATION_SCALING);
+    // Get turn rate from right stick X-axis
+    double turn = MathUtil.applyDeadband(controller.getRawAxis(4), 0.05) * ROTATION_SCALING;
+
+    // Quick turn mode enabled when right trigger is pressed (axis 3 > 0.5)
+    boolean quickTurn = controller.getRawAxis(3) > 0.5;
+
+    // Apply direction reversal if needed
+    if (!cameraFront) {
+      throttle = -throttle;
     }
-    //Switch robot direction
+
+    // Use cheesy drive (curvature drive)
+    driveSubsystem.driveCurvature(throttle, turn, quickTurn);
+
+    // Switch robot direction when back button (7) is pressed
     if (controller.button(7).getAsBoolean() == true && toggleLock == false) {
       if (cameraFront == true) {
-        //Direction of robot
+        // Direction of robot
         cameraFront = false;
-        //Prevents it from looping
+        // Prevents it from looping
         toggleLock = true;
       } else {
         cameraFront = true;

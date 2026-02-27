@@ -171,8 +171,17 @@ public class CANDriveSubsystem extends SubsystemBase {
     rightController.setReference(speeds.right * MAX_SPEED_MPS, ControlType.kVelocity);
   }
 
-   public void driveTank(double lSpeed, double rSpeed) {
+  public void driveTank(double lSpeed, double rSpeed) {
     var speeds = DifferentialDrive.tankDriveIK(lSpeed, rSpeed, true);
+    leftController.setReference(speeds.left * TANK_SPEED_MODIFIER, ControlType.kDutyCycle);
+    rightController.setReference(speeds.right * TANK_SPEED_MODIFIER, ControlType.kDutyCycle);
+  }
+
+  // Cheesy Drive (Curvature Drive) - provides car-like steering
+  // When moving forward, turning is proportional to speed (like steering a car)
+  // allowTurnInPlace enables quick turning when stationary or moving slowly
+  public void driveCurvature(double xSpeed, double zRotation, boolean allowTurnInPlace) {
+    var speeds = DifferentialDrive.curvatureDriveIK(xSpeed, zRotation, allowTurnInPlace);
     leftController.setReference(speeds.left * TANK_SPEED_MODIFIER, ControlType.kDutyCycle);
     rightController.setReference(speeds.right * TANK_SPEED_MODIFIER, ControlType.kDutyCycle);
   }

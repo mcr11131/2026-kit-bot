@@ -6,7 +6,8 @@
       "Bash(./gradlew build:*)",
       "Bash(ls:*)",
       "Bash(git rebase:*)",
-      "Bash(git push:*)"
+      "Bash(git push:*)",
+      "Bash(git checkout:*)"
     ]
   }
 }
