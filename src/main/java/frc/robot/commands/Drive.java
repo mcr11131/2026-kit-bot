@@ -40,14 +40,16 @@ public class Drive extends Command {
   @Override
   public void execute() {
     // Get forward and reverse throttle from triggers
-    double forwardThrottle = MathUtil.applyDeadband(controller.getRawAxis(2), 0.05);
-    double reverseThrottle = MathUtil.applyDeadband(controller.getRawAxis(3), 0.05);
+    // Increased deadband to 0.15 to reduce jitter from controller noise
+    double forwardThrottle = MathUtil.applyDeadband(controller.getRawAxis(2), 0.15);
+    double reverseThrottle = MathUtil.applyDeadband(controller.getRawAxis(3), 0.15);
 
     // Combine triggers into single throttle value (forward is positive, reverse is negative)
     double throttle = (forwardThrottle - reverseThrottle) * DRIVE_SCALING;
 
     // Get turn rate from right stick X-axis (inverted so right stick right = turn right)
-    double turn = -MathUtil.applyDeadband(controller.getRawAxis(4), 0.05) * ROTATION_SCALING;
+    // Increased deadband to 0.15 to reduce jitter from controller noise
+    double turn = -MathUtil.applyDeadband(controller.getRawAxis(4), 0.15) * ROTATION_SCALING;
 
     // Quick turn mode enabled when left stick is clicked (button 9)
     boolean quickTurn = controller.button(9).getAsBoolean();
