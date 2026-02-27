@@ -22,14 +22,14 @@ public class Eject extends Command {
   }
 
   // Called when the command is initially scheduled. Set the rollers to the
-  // appropriate RPM values for ejecting using velocity control
+  // appropriate speed values for ejecting
   @Override
   public void initialize() {
     fuelSubsystem
         .setIntakeLauncherRoller(
-             SmartDashboard.getNumber("Eject launcher RPM", EJECT_LAUNCHER_RPM));
+             SmartDashboard.getNumber("Eject launcher speed", EJECT_LAUNCHER_SPEED));
     fuelSubsystem
-        .setFeederRoller(SmartDashboard.getNumber("Eject feeder RPM", EJECT_FEEDER_RPM));
+        .setFeederRoller(SmartDashboard.getNumber("Eject feeder speed", EJECT_FEEDER_SPEED));
   }
 
   // Called every time the scheduler runs while the command is scheduled. This

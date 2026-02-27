@@ -22,12 +22,12 @@ public class SpinUp extends Command {
   }
 
   // Called when the command is initially scheduled. Spin up ONLY the feeder motor
-  // for 1 second before launching using velocity control
+  // for 1 second before launching
   @Override
   public void initialize() {
     // Only spin the feeder motor during spin-up, launcher stays off
     fuelSubsystem.setIntakeLauncherRoller(0);
-    fuelSubsystem.setFeederRoller(SmartDashboard.getNumber("Spin-up feeder RPM", SPIN_UP_FEEDER_RPM));
+    fuelSubsystem.setFeederRoller(SmartDashboard.getNumber("Spin-up feeder speed", SPIN_UP_FEEDER_SPEED));
   }
 
   // Called every time the scheduler runs while the command is scheduled. This

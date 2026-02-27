@@ -5,7 +5,8 @@
       "Bash(.\\\\gradlew.bat build:*)",
       "Bash(./gradlew build:*)",
       "Bash(ls:*)",
-      "Bash(git rebase:*)"
+      "Bash(git rebase:*)",
+      "Bash(git push:*)"
     ]
   }
 }

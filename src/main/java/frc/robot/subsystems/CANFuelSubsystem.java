@@ -9,10 +9,6 @@ import com.revrobotics.spark.SparkBase.ResetMode;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.ClosedLoopSlot;
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.sim.SparkMaxSim;
 
 import edu.wpi.first.math.system.plant.DCMotor;
@@ -28,14 +24,6 @@ public class CANFuelSubsystem extends SubsystemBase {
   private final SparkMax feederRoller;
   private final SparkMax intakeLauncherRoller;
 
-  // Encoders for velocity feedback
-  private final RelativeEncoder feederEncoder;
-  private final RelativeEncoder launcherEncoder;
-
-  // PID controllers for closed-loop velocity control
-  private final SparkClosedLoopController feederPIDController;
-  private final SparkClosedLoopController launcherPIDController;
-
   // Simulation support
   private SparkMaxSim launcherSim;
   private SparkMaxSim feederSim;
@@ -48,45 +36,31 @@ public class CANFuelSubsystem extends SubsystemBase {
     intakeLauncherRoller = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
     feederRoller = new SparkMax(FEEDER_MOTOR_ID, MotorType.kBrushless);
 
-    // Get encoders from the SparkMax controllers (built-in to NEO motors)
-    feederEncoder = feederRoller.getEncoder();
-    launcherEncoder = intakeLauncherRoller.getEncoder();
-
-    // Get PID controllers from the SparkMax controllers
-    feederPIDController = feederRoller.getClosedLoopController();
-    launcherPIDController = intakeLauncherRoller.getClosedLoopController();
-
-    // create the configuration for the feeder roller, set a current limit,
-    // configure PID gains for velocity control, and apply the config to the controller
+    // create the configuration for the feeder roller, set a current limit and apply
+    // the config to the controller
     SparkMaxConfig feederConfig = new SparkMaxConfig();
     feederConfig.smartCurrentLimit(FEEDER_MOTOR_CURRENT_LIMIT);
-    feederConfig.closedLoop
-        .pid(FEEDER_KP, FEEDER_KI, FEEDER_KD)
-        .velocityFF(FEEDER_KFF);
     feederRoller.configure(feederConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     // create the configuration for the launcher roller, set a current limit, set
     // the motor to inverted so that positive values are used for both intaking and
-    // launching, configure PID gains for velocity control, and apply the config to the controller
+    // launching, and apply the config to the controller
     SparkMaxConfig launcherConfig = new SparkMaxConfig();
     launcherConfig.inverted(true);
     launcherConfig.smartCurrentLimit(LAUNCHER_MOTOR_CURRENT_LIMIT);
-    launcherConfig.closedLoop
-        .pid(LAUNCHER_KP, LAUNCHER_KI, LAUNCHER_KD)
-        .velocityFF(LAUNCHER_KFF);
     intakeLauncherRoller.configure(launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
-    // put default RPM values for various fuel operations onto the dashboard
+    // put default speed values for various fuel operations onto the dashboard
     // all commands using this subsystem pull values from the dashboard to allow
     // you to tune the values easily, and then replace the values in Constants.java
     // with your new values. For more information, see the Software Guide.
-    SmartDashboard.putNumber("Intaking feeder RPM", INTAKING_FEEDER_RPM);
-    SmartDashboard.putNumber("Intaking launcher RPM", INTAKING_LAUNCHER_RPM);
-    SmartDashboard.putNumber("Launching feeder RPM", LAUNCHING_FEEDER_RPM);
-    SmartDashboard.putNumber("Launching launcher RPM", LAUNCHING_LAUNCHER_RPM);
-    SmartDashboard.putNumber("Spin-up feeder RPM", SPIN_UP_FEEDER_RPM);
-    SmartDashboard.putNumber("Eject feeder RPM", EJECT_FEEDER_RPM);
-    SmartDashboard.putNumber("Eject launcher RPM", EJECT_LAUNCHER_RPM);
+    SmartDashboard.putNumber("Intaking feeder speed", INTAKING_FEEDER_SPEED);
+    SmartDashboard.putNumber("Intaking launcher speed", INTAKING_LAUNCHER_SPEED);
+    SmartDashboard.putNumber("Launching feeder speed", LAUNCHING_FEEDER_SPEED);
+    SmartDashboard.putNumber("Launching launcher speed", LAUNCHING_LAUNCHER_SPEED);
+    SmartDashboard.putNumber("Spin-up feeder speed", SPIN_UP_FEEDER_SPEED);
+    SmartDashboard.putNumber("Eject feeder speed", EJECT_FEEDER_SPEED);
+    SmartDashboard.putNumber("Eject launcher speed", EJECT_LAUNCHER_SPEED);
 
     // Initialize simulation objects
     DCMotor neo = DCMotor.getNEO(1);
@@ -98,24 +72,14 @@ public class CANFuelSubsystem extends SubsystemBase {
         LinearSystemId.createFlywheelSystem(neo, FEEDER_MOI, 1.0), neo);
   }
 
-  // A method to set the velocity (RPM) of the intake/launcher roller using closed-loop control
-  public void setIntakeLauncherRoller(double rpm) {
-    launcherPIDController.setReference(rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
+  // A method to set the speed (percentage) of the intake/launcher roller
+  public void setIntakeLauncherRoller(double speed) {
+    intakeLauncherRoller.set(speed);
   }
 
-  // A method to set the velocity (RPM) of the feeder roller using closed-loop control
-  public void setFeederRoller(double rpm) {
-    feederPIDController.setReference(rpm, ControlType.kVelocity, ClosedLoopSlot.kSlot0);
-  }
-
-  // Get current launcher velocity in RPM (for debugging/tuning)
-  public double getLauncherVelocity() {
-    return launcherEncoder.getVelocity();
-  }
-
-  // Get current feeder velocity in RPM (for debugging/tuning)
-  public double getFeederVelocity() {
-    return feederEncoder.getVelocity();
+  // A method to set the speed (percentage) of the feeder roller
+  public void setFeederRoller(double speed) {
+    feederRoller.set(speed);
   }
 
   // A method to stop the rollers
@@ -127,9 +91,6 @@ public class CANFuelSubsystem extends SubsystemBase {
   @Override
   public void periodic() {
     // This method will be called once per scheduler run
-    // Display current velocities on SmartDashboard for tuning
-    SmartDashboard.putNumber("Launcher Actual RPM", getLauncherVelocity());
-    SmartDashboard.putNumber("Feeder Actual RPM", getFeederVelocity());
   }
 
   @Override

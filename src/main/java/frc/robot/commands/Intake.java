@@ -22,12 +22,12 @@ public class Intake extends Command {
   }
 
   // Called when the command is initially scheduled. Set the rollers to the
-  // appropriate RPM values for intaking using velocity control
+  // appropriate speed values for intaking
   @Override
   public void initialize() {
     fuelSubsystem
-        .setIntakeLauncherRoller(SmartDashboard.getNumber("Intaking launcher RPM", INTAKING_LAUNCHER_RPM));
-    fuelSubsystem.setFeederRoller(SmartDashboard.getNumber("Intaking feeder RPM", INTAKING_FEEDER_RPM));
+        .setIntakeLauncherRoller(SmartDashboard.getNumber("Intaking launcher speed", INTAKING_LAUNCHER_SPEED));
+    fuelSubsystem.setFeederRoller(SmartDashboard.getNumber("Intaking feeder speed", INTAKING_FEEDER_SPEED));
   }
 
   // Called every time the scheduler runs while the command is scheduled. This

@@ -47,38 +47,23 @@ public final class Constants {
     public static final int FEEDER_MOTOR_ID = 17;
     public static final int INTAKE_LAUNCHER_MOTOR_ID = 15;
 
-    // Current limit and nominal voltage for fuel mechanism motors.
+    // Current limit for fuel mechanism motors
     public static final int FEEDER_MOTOR_CURRENT_LIMIT = 60;
     public static final int LAUNCHER_MOTOR_CURRENT_LIMIT = 60;
 
-    // PID gains for velocity control - tune these values based on robot performance
-    // For velocity control, typically kP and kFF are most important
-    // Start with kFF, then add kP to eliminate steady-state error
-    public static final double LAUNCHER_KP = 0.0001;
-    public static final double LAUNCHER_KI = 0.0;
-    public static final double LAUNCHER_KD = 0.0;
-    public static final double LAUNCHER_KFF = 0.00018;
-
-    public static final double FEEDER_KP = 0.0001;
-    public static final double FEEDER_KI = 0.0;
-    public static final double FEEDER_KD = 0.0;
-    public static final double FEEDER_KFF = 0.00018;
-
-    // RPM values for various fuel operations using velocity control
+    // Speed values for various fuel operations (percentage -1.0 to 1.0)
     // These values can be tuned via SmartDashboard during testing
-    // Positive RPM = forward, Negative RPM = reverse
-    // Starting with conservative values - increase gradually to avoid stalling
-    public static final double INTAKING_FEEDER_RPM = 800;       // Feeder pulls balls in
-    public static final double INTAKING_LAUNCHER_RPM = -2500;   // Launcher pulls balls in (reversed)
+    public static final double INTAKING_FEEDER_SPEED = 0.25;    // Feeder pulls balls in
+    public static final double INTAKING_LAUNCHER_SPEED = -1.0;  // Launcher pulls balls in (reversed)
 
-    public static final double LAUNCHING_FEEDER_RPM = 2500;     // Feeder pushes balls out
-    public static final double LAUNCHING_LAUNCHER_RPM = 3000;   // Launcher shoots balls
+    public static final double LAUNCHING_FEEDER_SPEED = 1.0;    // Feeder pushes balls out
+    public static final double LAUNCHING_LAUNCHER_SPEED = 1.0;  // Launcher shoots balls
 
-    public static final double SPIN_UP_FEEDER_RPM = -2000;      // Feeder reverse during spin-up
+    public static final double SPIN_UP_FEEDER_SPEED = -1.0;     // Feeder reverse during spin-up
     public static final double SPIN_UP_SECONDS = 1;
 
-    public static final double EJECT_FEEDER_RPM = -2500;        // Feeder pushes balls backward
-    public static final double EJECT_LAUNCHER_RPM = 2500;       // Launcher ejects balls
+    public static final double EJECT_FEEDER_SPEED = -1.0;       // Feeder pushes balls backward
+    public static final double EJECT_LAUNCHER_SPEED = 1.0;      // Launcher ejects balls
 
     //General climb speed
     public static final double speed = 1;

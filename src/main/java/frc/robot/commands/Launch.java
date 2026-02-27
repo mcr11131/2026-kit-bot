@@ -22,13 +22,13 @@ public class Launch extends Command {
   }
 
   // Called when the command is initially scheduled. Set the rollers to the
-  // appropriate RPM values for launching using velocity control
+  // appropriate speed values for launching
   @Override
   public void initialize() {
     fuelSubsystem
         .setIntakeLauncherRoller(
-           SmartDashboard.getNumber("Launching launcher RPM", LAUNCHING_LAUNCHER_RPM));
-    fuelSubsystem.setFeederRoller(SmartDashboard.getNumber("Launching feeder RPM", LAUNCHING_FEEDER_RPM));
+           SmartDashboard.getNumber("Launching launcher speed", LAUNCHING_LAUNCHER_SPEED));
+    fuelSubsystem.setFeederRoller(SmartDashboard.getNumber("Launching feeder speed", LAUNCHING_FEEDER_SPEED));
   }
 
   // Called every time the scheduler runs while the command is scheduled. This
