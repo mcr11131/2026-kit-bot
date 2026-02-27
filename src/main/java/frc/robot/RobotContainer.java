@@ -19,7 +19,7 @@ import frc.robot.commands.Eject;
 import frc.robot.commands.ExampleAuto;
 import frc.robot.commands.Intake;
 import frc.robot.commands.LaunchSequence;
-import frc.robot.commands.Tracking;
+import frc.robot.commands.Spin180;
 import frc.robot.subsystems.CANClimbSubsystem;
 import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
@@ -91,8 +91,8 @@ public class RobotContainer {
     // the intake
     driverController.button(2).whileTrue(new Eject(fuelSubsystem));
 
-    //Align to april tag when X is pushed
-    driverController.button(3).whileTrue(new Tracking(driveSubsystem));
+    // Spin 180 degrees in place when X button is pressed
+    driverController.button(3).onTrue(new Spin180(driveSubsystem));
 
     //Switch way robot is facing by reversing speed when back button is clicked
     //driverController.button(7).toggleOnTrue();
