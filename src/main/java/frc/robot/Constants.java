@@ -53,7 +53,7 @@ public final class Constants {
 
     // Speed values for various fuel operations (percentage -1.0 to 1.0)
     // These values can be tuned via SmartDashboard during testing
-    public static final double INTAKING_FEEDER_SPEED = 1.0;     // Feeder pulls balls in - max power
+    public static final double INTAKING_FEEDER_SPEED = 0.5;     // Feeder pulls balls in - 50% power
     public static final double INTAKING_LAUNCHER_SPEED = -1.0;  // Launcher pulls balls in (reversed)
 
     public static final double LAUNCHING_FEEDER_SPEED = 1.0;    // Feeder pushes balls out
