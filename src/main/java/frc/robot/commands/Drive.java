@@ -60,18 +60,19 @@ public class Drive extends Command {
     // Use cheesy drive (curvature drive)
     driveSubsystem.driveCurvature(throttle, turn, quickTurn);
 
-    // Switch robot direction when back button (7) is pressed
-    if (controller.button(7).getAsBoolean() == true && toggleLock == false) {
+    // Switch robot direction when Y button (4) is pressed - toggles front/back
+    if (controller.button(4).getAsBoolean() == true && toggleLock == false) {
       if (cameraFront == true) {
-        // Direction of robot
+        // Switch: front becomes back, back becomes front
         cameraFront = false;
         // Prevents it from looping
         toggleLock = true;
       } else {
+        // Switch back: back becomes front, front becomes back
         cameraFront = true;
         toggleLock = true;
       }
-    } else if (controller.button(7).getAsBoolean() == false) {
+    } else if (controller.button(4).getAsBoolean() == false) {
       toggleLock = false;
     }
   }
