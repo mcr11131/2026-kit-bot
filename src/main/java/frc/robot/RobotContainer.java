@@ -83,11 +83,10 @@ public class RobotContainer {
    */
   private void configureBindings() {
 
-    // While the left bumper on operator controller is held, intake Fuel
-    driverController.button(5).whileTrue(new Intake(fuelSubsystem));
-    // While the right bumper on the operator controller is held, spin up for 1
-    // second, then launch fuel. When the button is released, stop.
-    driverController.button(6).whileTrue(new LaunchSequence(fuelSubsystem));
+    // Toggle intake on/off with left bumper - press once to start, press again to stop
+    driverController.button(5).toggleOnTrue(new Intake(fuelSubsystem));
+    // Toggle launch on/off with right bumper - press once to start launching, press again to stop
+    driverController.button(6).toggleOnTrue(new LaunchSequence(fuelSubsystem));
     // While the A button is held on the operator controller, eject fuel back out
     // the intake
     driverController.button(2).whileTrue(new Eject(fuelSubsystem));

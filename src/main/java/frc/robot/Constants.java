@@ -51,22 +51,37 @@ public final class Constants {
     public static final int FEEDER_MOTOR_CURRENT_LIMIT = 60;
     public static final int LAUNCHER_MOTOR_CURRENT_LIMIT = 60;
 
-    // Voltage values for various fuel operations. These values may need to be tuned
-    // based on exact robot construction.
-    // See the Software Guide for tuning information
-    public static final double INTAKING_FEEDER_VOLTAGE = 4;
-    //Auger
-    public static final double INTAKING_INTAKE_VOLTAGE = -12;
-    public static final double LAUNCHING_FEEDER_VOLTAGE = 9;
-    public static final double LAUNCHING_LAUNCHER_VOLTAGE = 10.6;
-    public static final double SPIN_UP_FEEDER_VOLTAGE = -6;
+    // PID gains for velocity control - tune these values based on robot performance
+    // For velocity control, typically kP and kFF are most important
+    // Start with kFF, then add kP to eliminate steady-state error
+    public static final double LAUNCHER_KP = 0.0001;
+    public static final double LAUNCHER_KI = 0.0;
+    public static final double LAUNCHER_KD = 0.0;
+    public static final double LAUNCHER_KFF = 0.00018;
+
+    public static final double FEEDER_KP = 0.0001;
+    public static final double FEEDER_KI = 0.0;
+    public static final double FEEDER_KD = 0.0;
+    public static final double FEEDER_KFF = 0.00018;
+
+    // RPM values for various fuel operations using velocity control
+    // These values can be tuned via SmartDashboard during testing
+    // Positive RPM = forward, Negative RPM = reverse
+    public static final double INTAKING_FEEDER_RPM = 1500;      // Feeder pulls balls in
+    public static final double INTAKING_LAUNCHER_RPM = -3000;   // Launcher pulls balls in (reversed)
+
+    public static final double LAUNCHING_FEEDER_RPM = 3000;     // Feeder pushes balls out
+    public static final double LAUNCHING_LAUNCHER_RPM = 4000;   // Launcher shoots balls
+
+    public static final double SPIN_UP_FEEDER_RPM = -2000;      // Feeder reverse during spin-up
     public static final double SPIN_UP_SECONDS = 1;
-    //New code for ejecting voltage levels. Negative of intaking.
-    public static final double EJECT_FEEDER_VOLTAGE = 12;
-    public static final double EJECT_LAUNCHER_VOLTAGE = 10;
+
+    public static final double EJECT_FEEDER_RPM = 3500;         // Feeder pushes balls backward
+    public static final double EJECT_LAUNCHER_RPM = 3000;       // Launcher ejects balls
 
     //General climb speed
     public static final double speed = 1;
+>>>>>>> 80df47d (Implement velocity control for intake and launcher motors)
   }
 
   public static final class ClimberConstants {
