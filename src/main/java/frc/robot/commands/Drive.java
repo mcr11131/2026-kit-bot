@@ -36,7 +36,7 @@ public class Drive extends Command {
   // - Left trigger (axis 2): forward throttle
   // - Right trigger (axis 3): reverse throttle
   // - Right stick X-axis: steering (like a steering wheel)
-  // - Right bumper (button 6): quick turn for sharp turns while moving
+  // - Left stick click (button 9): quick turn for sharp turns while moving
   @Override
   public void execute() {
     // Get forward and reverse throttle from triggers
@@ -49,8 +49,8 @@ public class Drive extends Command {
     // Get turn rate from right stick X-axis
     double turn = MathUtil.applyDeadband(controller.getRawAxis(4), 0.05) * ROTATION_SCALING;
 
-    // Quick turn mode enabled when right bumper is pressed (button 6)
-    boolean quickTurn = controller.button(6).getAsBoolean();
+    // Quick turn mode enabled when left stick is clicked (button 9)
+    boolean quickTurn = controller.button(9).getAsBoolean();
 
     // Apply direction reversal if needed
     if (!cameraFront) {
