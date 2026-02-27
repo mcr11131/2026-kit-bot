@@ -59,7 +59,7 @@ public final class Constants {
     public static final double LAUNCHING_FEEDER_SPEED = 1.0;    // Feeder pushes balls out
     public static final double LAUNCHING_LAUNCHER_SPEED = 1.0;  // Launcher shoots balls
 
-    public static final double SPIN_UP_FEEDER_SPEED = -1.0;     // Feeder reverse during spin-up
+    public static final double SPIN_UP_FEEDER_SPEED = 1.0;      // Feeder feeds forward during spin-up
     public static final double SPIN_UP_SECONDS = 1;
 
     public static final double EJECT_FEEDER_SPEED = -1.0;       // Feeder pushes balls backward

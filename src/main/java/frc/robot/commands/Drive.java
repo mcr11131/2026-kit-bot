@@ -32,22 +32,25 @@ public class Drive extends Command {
   }
 
   // Called every time the scheduler runs while the command is scheduled.
-  // Cheesy Drive (Curvature Drive):
-  // - Left stick Y-axis controls throttle (forward/backward)
-  // - Right stick X-axis controls turning (like a steering wheel)
-  // - Right trigger (axis 3) enables quick turn for sharp turns while moving
-  // The Y axis is inverted so that pushing the stick away from you (negative value)
-  // drives the robot forwards (positive value).
+  // Cheesy Drive (Curvature Drive) - Racing style controls:
+  // - Left trigger (axis 2): forward throttle
+  // - Right trigger (axis 3): reverse throttle
+  // - Right stick X-axis: steering (like a steering wheel)
+  // - Right bumper (button 6): quick turn for sharp turns while moving
   @Override
   public void execute() {
-    // Get throttle (forward/backward) from left stick Y-axis
-    double throttle = -MathUtil.applyDeadband(controller.getRawAxis(1), 0.05) * DRIVE_SCALING;
+    // Get forward and reverse throttle from triggers
+    double forwardThrottle = MathUtil.applyDeadband(controller.getRawAxis(2), 0.05);
+    double reverseThrottle = MathUtil.applyDeadband(controller.getRawAxis(3), 0.05);
+
+    // Combine triggers into single throttle value (forward is positive, reverse is negative)
+    double throttle = (forwardThrottle - reverseThrottle) * DRIVE_SCALING;
 
     // Get turn rate from right stick X-axis
     double turn = MathUtil.applyDeadband(controller.getRawAxis(4), 0.05) * ROTATION_SCALING;
 
-    // Quick turn mode enabled when right trigger is pressed (axis 3 > 0.5)
-    boolean quickTurn = controller.getRawAxis(3) > 0.5;
+    // Quick turn mode enabled when right bumper is pressed (button 6)
+    boolean quickTurn = controller.button(6).getAsBoolean();
 
     // Apply direction reversal if needed
     if (!cameraFront) {
