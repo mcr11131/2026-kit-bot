@@ -17,6 +17,8 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.sim.SparkMaxSim;
 
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
@@ -37,6 +39,19 @@ public class CANDriveSubsystem extends SubsystemBase {
   private final SparkClosedLoopController rightController;
   private final RelativeEncoder leftEncoder;
   private final RelativeEncoder rightEncoder;
+
+  // Data logging entries
+  private final DoubleLogEntry leftCurrentLog;
+  private final DoubleLogEntry rightCurrentLog;
+  private final DoubleLogEntry leftVoltageLog;
+  private final DoubleLogEntry rightVoltageLog;
+  private final DoubleLogEntry leftTempLog;
+  private final DoubleLogEntry rightTempLog;
+  private final DoubleLogEntry leftVelocityLog;
+  private final DoubleLogEntry rightVelocityLog;
+  private final DoubleLogEntry leftPositionLog;
+  private final DoubleLogEntry rightPositionLog;
+  private final DoubleLogEntry batteryVoltageLog;
 
   // Simulation support
   private SparkMaxSim leftLeaderSim;
@@ -108,6 +123,20 @@ public class CANDriveSubsystem extends SubsystemBase {
     leftEncoder = leftLeader.getEncoder();
     rightEncoder = rightLeader.getEncoder();
 
+    // Initialize data logging
+    var log = DataLogManager.getLog();
+    leftCurrentLog = new DoubleLogEntry(log, "/drive/leftCurrent");
+    rightCurrentLog = new DoubleLogEntry(log, "/drive/rightCurrent");
+    leftVoltageLog = new DoubleLogEntry(log, "/drive/leftVoltage");
+    rightVoltageLog = new DoubleLogEntry(log, "/drive/rightVoltage");
+    leftTempLog = new DoubleLogEntry(log, "/drive/leftTemp");
+    rightTempLog = new DoubleLogEntry(log, "/drive/rightTemp");
+    leftVelocityLog = new DoubleLogEntry(log, "/drive/leftVelocity");
+    rightVelocityLog = new DoubleLogEntry(log, "/drive/rightVelocity");
+    leftPositionLog = new DoubleLogEntry(log, "/drive/leftPosition");
+    rightPositionLog = new DoubleLogEntry(log, "/drive/rightPosition");
+    batteryVoltageLog = new DoubleLogEntry(log, "/drive/batteryVoltage");
+
     // Initialize simulation objects for all four motors
     DCMotor driveMotor = DCMotor.getCIM(2);
     leftLeaderSim = new SparkMaxSim(leftLeader, driveMotor);
@@ -126,18 +155,44 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // Verbose logging for debugging motor issues
-    SmartDashboard.putNumber("Drive/Left Current", leftLeader.getOutputCurrent());
-    SmartDashboard.putNumber("Drive/Right Current", rightLeader.getOutputCurrent());
-    SmartDashboard.putNumber("Drive/Left Voltage", leftLeader.getAppliedOutput() * leftLeader.getBusVoltage());
-    SmartDashboard.putNumber("Drive/Right Voltage", rightLeader.getAppliedOutput() * rightLeader.getBusVoltage());
-    SmartDashboard.putNumber("Drive/Left Temperature", leftLeader.getMotorTemperature());
-    SmartDashboard.putNumber("Drive/Right Temperature", rightLeader.getMotorTemperature());
-    SmartDashboard.putNumber("Drive/Left Velocity", leftEncoder.getVelocity());
-    SmartDashboard.putNumber("Drive/Right Velocity", rightEncoder.getVelocity());
-    SmartDashboard.putNumber("Drive/Left Position", leftEncoder.getPosition());
-    SmartDashboard.putNumber("Drive/Right Position", rightEncoder.getPosition());
-    SmartDashboard.putNumber("Drive/Battery Voltage", RobotController.getBatteryVoltage());
+    // Read motor metrics
+    double leftCurrent = leftLeader.getOutputCurrent();
+    double rightCurrent = rightLeader.getOutputCurrent();
+    double leftVoltage = leftLeader.getAppliedOutput() * leftLeader.getBusVoltage();
+    double rightVoltage = rightLeader.getAppliedOutput() * rightLeader.getBusVoltage();
+    double leftTemp = leftLeader.getMotorTemperature();
+    double rightTemp = rightLeader.getMotorTemperature();
+    double leftVelocity = leftEncoder.getVelocity();
+    double rightVelocity = rightEncoder.getVelocity();
+    double leftPosition = leftEncoder.getPosition();
+    double rightPosition = rightEncoder.getPosition();
+    double batteryVoltage = RobotController.getBatteryVoltage();
+
+    // Log to SmartDashboard for real-time viewing
+    SmartDashboard.putNumber("Drive/Left Current", leftCurrent);
+    SmartDashboard.putNumber("Drive/Right Current", rightCurrent);
+    SmartDashboard.putNumber("Drive/Left Voltage", leftVoltage);
+    SmartDashboard.putNumber("Drive/Right Voltage", rightVoltage);
+    SmartDashboard.putNumber("Drive/Left Temperature", leftTemp);
+    SmartDashboard.putNumber("Drive/Right Temperature", rightTemp);
+    SmartDashboard.putNumber("Drive/Left Velocity", leftVelocity);
+    SmartDashboard.putNumber("Drive/Right Velocity", rightVelocity);
+    SmartDashboard.putNumber("Drive/Left Position", leftPosition);
+    SmartDashboard.putNumber("Drive/Right Position", rightPosition);
+    SmartDashboard.putNumber("Drive/Battery Voltage", batteryVoltage);
+
+    // Log to data log files for post-match analysis
+    leftCurrentLog.append(leftCurrent);
+    rightCurrentLog.append(rightCurrent);
+    leftVoltageLog.append(leftVoltage);
+    rightVoltageLog.append(rightVoltage);
+    leftTempLog.append(leftTemp);
+    rightTempLog.append(rightTemp);
+    leftVelocityLog.append(leftVelocity);
+    rightVelocityLog.append(rightVelocity);
+    leftPositionLog.append(leftPosition);
+    rightPositionLog.append(rightPosition);
+    batteryVoltageLog.append(batteryVoltage);
   }
 
   @Override

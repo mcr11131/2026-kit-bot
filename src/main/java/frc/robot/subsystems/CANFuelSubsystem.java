@@ -13,6 +13,8 @@ import com.revrobotics.sim.SparkMaxSim;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,6 +25,14 @@ import static frc.robot.Constants.SimConstants.*;
 public class CANFuelSubsystem extends SubsystemBase {
   private final SparkMax feederRoller;
   private final SparkMax intakeLauncherRoller;
+
+  // Data logging entries
+  private final DoubleLogEntry launcherCurrentLog;
+  private final DoubleLogEntry feederCurrentLog;
+  private final DoubleLogEntry launcherVoltageLog;
+  private final DoubleLogEntry feederVoltageLog;
+  private final DoubleLogEntry launcherTempLog;
+  private final DoubleLogEntry feederTempLog;
 
   // Simulation support
   private SparkMaxSim launcherSim;
@@ -62,6 +72,15 @@ public class CANFuelSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Eject feeder speed", EJECT_FEEDER_SPEED);
     SmartDashboard.putNumber("Eject launcher speed", EJECT_LAUNCHER_SPEED);
 
+    // Initialize data logging
+    var log = DataLogManager.getLog();
+    launcherCurrentLog = new DoubleLogEntry(log, "/fuel/launcherCurrent");
+    feederCurrentLog = new DoubleLogEntry(log, "/fuel/feederCurrent");
+    launcherVoltageLog = new DoubleLogEntry(log, "/fuel/launcherVoltage");
+    feederVoltageLog = new DoubleLogEntry(log, "/fuel/feederVoltage");
+    launcherTempLog = new DoubleLogEntry(log, "/fuel/launcherTemp");
+    feederTempLog = new DoubleLogEntry(log, "/fuel/feederTemp");
+
     // Initialize simulation objects
     DCMotor neo = DCMotor.getNEO(1);
     launcherSim = new SparkMaxSim(intakeLauncherRoller, neo);
@@ -90,7 +109,29 @@ public class CANFuelSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    // Read motor metrics
+    double launcherCurrent = intakeLauncherRoller.getOutputCurrent();
+    double feederCurrent = feederRoller.getOutputCurrent();
+    double launcherVoltage = intakeLauncherRoller.getAppliedOutput() * intakeLauncherRoller.getBusVoltage();
+    double feederVoltage = feederRoller.getAppliedOutput() * feederRoller.getBusVoltage();
+    double launcherTemp = intakeLauncherRoller.getMotorTemperature();
+    double feederTemp = feederRoller.getMotorTemperature();
+
+    // Log to SmartDashboard for real-time viewing
+    SmartDashboard.putNumber("Fuel/Launcher Current", launcherCurrent);
+    SmartDashboard.putNumber("Fuel/Feeder Current", feederCurrent);
+    SmartDashboard.putNumber("Fuel/Launcher Voltage", launcherVoltage);
+    SmartDashboard.putNumber("Fuel/Feeder Voltage", feederVoltage);
+    SmartDashboard.putNumber("Fuel/Launcher Temperature", launcherTemp);
+    SmartDashboard.putNumber("Fuel/Feeder Temperature", feederTemp);
+
+    // Log to data log files for post-match analysis
+    launcherCurrentLog.append(launcherCurrent);
+    feederCurrentLog.append(feederCurrent);
+    launcherVoltageLog.append(launcherVoltage);
+    feederVoltageLog.append(feederVoltage);
+    launcherTempLog.append(launcherTemp);
+    feederTempLog.append(feederTemp);
   }
 
   @Override
