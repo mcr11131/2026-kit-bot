@@ -67,18 +67,18 @@ public final class Constants {
     // RPM values for various fuel operations using velocity control
     // These values can be tuned via SmartDashboard during testing
     // Positive RPM = forward, Negative RPM = reverse
-    // Converted from previous percentage-based control (100% ≈ 5000 RPM, 25% ≈ 1250 RPM)
-    public static final double INTAKING_FEEDER_RPM = 1250;      // Feeder pulls balls in (was 25%)
-    public static final double INTAKING_LAUNCHER_RPM = -5000;   // Launcher pulls balls in (was -100%)
+    // Starting with conservative values - increase gradually to avoid stalling
+    public static final double INTAKING_FEEDER_RPM = 800;       // Feeder pulls balls in
+    public static final double INTAKING_LAUNCHER_RPM = -2500;   // Launcher pulls balls in (reversed)
 
-    public static final double LAUNCHING_FEEDER_RPM = 5000;     // Feeder pushes balls out (was 100%)
-    public static final double LAUNCHING_LAUNCHER_RPM = 5000;   // Launcher shoots balls (was 100%)
+    public static final double LAUNCHING_FEEDER_RPM = 2500;     // Feeder pushes balls out
+    public static final double LAUNCHING_LAUNCHER_RPM = 3000;   // Launcher shoots balls
 
-    public static final double SPIN_UP_FEEDER_RPM = -5000;      // Feeder reverse during spin-up (was -100%)
+    public static final double SPIN_UP_FEEDER_RPM = -2000;      // Feeder reverse during spin-up
     public static final double SPIN_UP_SECONDS = 1;
 
-    public static final double EJECT_FEEDER_RPM = -5000;        // Feeder pushes balls backward (was -100%)
-    public static final double EJECT_LAUNCHER_RPM = 5000;       // Launcher ejects balls (was 100%)
+    public static final double EJECT_FEEDER_RPM = -2500;        // Feeder pushes balls backward
+    public static final double EJECT_LAUNCHER_RPM = 2500;       // Launcher ejects balls
 
     //General climb speed
     public static final double speed = 1;
