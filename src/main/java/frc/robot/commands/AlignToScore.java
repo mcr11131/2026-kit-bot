@@ -54,8 +54,12 @@ public class AlignToScore extends Command {
   public void initialize() {
     launchState = LaunchState.ALIGNING;
     spinUpTimer.reset();
+
+    // Only target AprilTags 9 and 10 (red alliance scoring)
+    LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{9, 10});
+
     SmartDashboard.putBoolean("Align/Ready to Shoot", false);
-    SmartDashboard.putString("Align/Status", "Searching...");
+    SmartDashboard.putString("Align/Status", "Searching for tags 9/10...");
   }
 
   @Override
@@ -177,6 +181,10 @@ public class AlignToScore extends Command {
     driveSubsystem.driveArcade(0, 0);
     fuelSubsystem.stop();
     spinUpTimer.stop();
+
+    // Clear the tag filter so other commands can see all tags
+    LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{});
+
     SmartDashboard.putBoolean("Align/Ready to Shoot", false);
     SmartDashboard.putString("Align/Status", "Stopped");
   }
