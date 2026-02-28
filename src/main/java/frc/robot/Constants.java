@@ -37,9 +37,9 @@ public final class Constants {
     // Increase if the robot still drifts, decrease if it oscillates.
     public static final double STRAIGHT_KP = 1.5;
 
-    // Current limit for drivetrain motors. 80A allows full power operation
-    // while still protecting against breaker trips. CIM motors can handle 80A continuous.
-    public static final int DRIVE_MOTOR_CURRENT_LIMIT = 80;
+    // Current limit for drivetrain motors. 60A protects against breaker trips
+    // on 40A breakers while still allowing strong performance.
+    public static final int DRIVE_MOTOR_CURRENT_LIMIT = 60;
 
     // Ramp rate in seconds from 0 to full throttle. Reduces current spikes and smooths acceleration.
     public static final double DRIVE_OPEN_LOOP_RAMP_RATE = 0.3;
