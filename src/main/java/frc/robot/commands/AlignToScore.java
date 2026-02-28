@@ -5,6 +5,8 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -55,8 +57,14 @@ public class AlignToScore extends Command {
     launchState = LaunchState.ALIGNING;
     spinUpTimer.reset();
 
-    // Only target AprilTags 9 and 10 (red alliance scoring)
-    LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{9, 10});
+    // Filter to scoring tags based on alliance color
+    var alliance = DriverStation.getAlliance();
+    if (alliance.isPresent() && alliance.get() == Alliance.Blue) {
+      LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{25, 26});
+    } else {
+      // Default to red alliance tags
+      LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{9, 10});
+    }
 
     SmartDashboard.putBoolean("Align/Ready to Shoot", false);
     SmartDashboard.putString("Align/Status", "Searching for tags 9/10...");
