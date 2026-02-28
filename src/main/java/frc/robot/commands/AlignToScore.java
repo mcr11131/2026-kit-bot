@@ -5,19 +5,24 @@
 package frc.robot.commands;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CANDriveSubsystem;
+import frc.robot.subsystems.CANFuelSubsystem;
+import static frc.robot.Constants.FuelConstants.*;
 
 /**
- * Aligns the robot to an AprilTag for scoring fuel.
- * - Rotates to center on the tag (using tx)
- * - Drives forward/backward to reach the target distance (using 3D pose)
- * - Shows a "ready to shoot" indicator on SmartDashboard
+ * Full scoring sequence — hold one button to:
+ * 1. Align to AprilTag (aim + drive to 5ft)
+ * 2. Auto spin-up when aligned
+ * 3. Auto launch fuel
+ * Release button to stop everything.
  */
 public class AlignToScore extends Command {
   private final CANDriveSubsystem driveSubsystem;
+  private final CANFuelSubsystem fuelSubsystem;
 
   // Target distance from the AprilTag in meters (5 feet = 1.524m)
   private static final double TARGET_DISTANCE_METERS = 1.524;
@@ -34,13 +39,21 @@ public class AlignToScore extends Command {
   private static final double AIM_KP = 0.02;
   private static final double DISTANCE_KP = 0.8;
 
-  public AlignToScore(CANDriveSubsystem driveSystem) {
-    addRequirements(driveSystem);
+  // Launcher state tracking
+  private enum LaunchState { ALIGNING, SPINNING_UP, LAUNCHING }
+  private LaunchState launchState;
+  private final Timer spinUpTimer = new Timer();
+
+  public AlignToScore(CANDriveSubsystem driveSystem, CANFuelSubsystem fuelSystem) {
+    addRequirements(driveSystem, fuelSystem);
     driveSubsystem = driveSystem;
+    fuelSubsystem = fuelSystem;
   }
 
   @Override
   public void initialize() {
+    launchState = LaunchState.ALIGNING;
+    spinUpTimer.reset();
     SmartDashboard.putBoolean("Align/Ready to Shoot", false);
     SmartDashboard.putString("Align/Status", "Searching...");
   }
@@ -99,24 +112,71 @@ public class AlignToScore extends Command {
     driveSubsystem.driveArcade(driveSpeed, rotationSpeed);
 
     // Update dashboard
-    boolean ready = aimed && atDistance;
-    SmartDashboard.putBoolean("Align/Ready to Shoot", ready);
+    boolean aligned = aimed && atDistance;
+    SmartDashboard.putBoolean("Align/Ready to Shoot", aligned);
     SmartDashboard.putNumber("Align/TX", tx);
 
-    if (ready) {
-      SmartDashboard.putString("Align/Status", "READY TO SHOOT");
-    } else if (!aimed && !atDistance) {
-      SmartDashboard.putString("Align/Status", "Aiming + Driving...");
-    } else if (!aimed) {
-      SmartDashboard.putString("Align/Status", "Aiming...");
-    } else {
-      SmartDashboard.putString("Align/Status", "Driving to distance...");
+    // --- LAUNCH STATE MACHINE ---
+    switch (launchState) {
+      case ALIGNING:
+        // Wait until aligned, then start spin-up
+        if (aligned) {
+          launchState = LaunchState.SPINNING_UP;
+          spinUpTimer.restart();
+          // Spin up launcher, feeder stays off
+          fuelSubsystem.setIntakeLauncherRoller(
+              SmartDashboard.getNumber("Launching launcher speed", LAUNCHING_LAUNCHER_SPEED));
+          fuelSubsystem.setFeederRoller(
+              SmartDashboard.getNumber("Spin-up feeder speed", SPIN_UP_FEEDER_SPEED));
+          SmartDashboard.putString("Align/Status", "Spinning up...");
+        } else if (!aimed && !atDistance) {
+          SmartDashboard.putString("Align/Status", "Aiming + Driving...");
+        } else if (!aimed) {
+          SmartDashboard.putString("Align/Status", "Aiming...");
+        } else {
+          SmartDashboard.putString("Align/Status", "Driving to distance...");
+        }
+        break;
+
+      case SPINNING_UP:
+        // If we lose alignment, go back to aligning
+        if (!aligned) {
+          launchState = LaunchState.ALIGNING;
+          fuelSubsystem.stop();
+          SmartDashboard.putString("Align/Status", "Lost target, re-aligning...");
+          break;
+        }
+        // After spin-up time, start launching
+        if (spinUpTimer.hasElapsed(SPIN_UP_SECONDS)) {
+          launchState = LaunchState.LAUNCHING;
+          fuelSubsystem.setIntakeLauncherRoller(
+              SmartDashboard.getNumber("Launching launcher speed", LAUNCHING_LAUNCHER_SPEED));
+          fuelSubsystem.setFeederRoller(
+              SmartDashboard.getNumber("Launching feeder speed", LAUNCHING_FEEDER_SPEED));
+          SmartDashboard.putString("Align/Status", "LAUNCHING!");
+        } else {
+          SmartDashboard.putString("Align/Status", "Spinning up...");
+        }
+        break;
+
+      case LAUNCHING:
+        // Keep launching, but if we lose alignment badly, stop
+        if (!aimed && Math.abs(tx) > AIM_TOLERANCE_DEGREES * 3) {
+          launchState = LaunchState.ALIGNING;
+          fuelSubsystem.stop();
+          SmartDashboard.putString("Align/Status", "Lost aim, re-aligning...");
+        } else {
+          SmartDashboard.putString("Align/Status", "LAUNCHING!");
+        }
+        break;
     }
   }
 
   @Override
   public void end(boolean interrupted) {
     driveSubsystem.driveArcade(0, 0);
+    fuelSubsystem.stop();
+    spinUpTimer.stop();
     SmartDashboard.putBoolean("Align/Ready to Shoot", false);
     SmartDashboard.putString("Align/Status", "Stopped");
   }

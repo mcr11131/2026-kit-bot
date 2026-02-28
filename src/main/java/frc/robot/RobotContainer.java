@@ -96,7 +96,7 @@ public class RobotContainer {
     driverController.button(3).onTrue(new Spin180(driveSubsystem));
 
     // Hold back button to auto-align to AprilTag for scoring (aims + drives to 5ft)
-    driverController.button(7).whileTrue(new AlignToScore(driveSubsystem));
+    driverController.button(7).whileTrue(new AlignToScore(driveSubsystem, fuelSubsystem));
 
 
 
