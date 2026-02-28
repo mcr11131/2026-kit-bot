@@ -19,6 +19,7 @@ import frc.robot.commands.Eject;
 import frc.robot.commands.ExampleAuto;
 import frc.robot.commands.Intake;
 import frc.robot.commands.LaunchSequence;
+import frc.robot.commands.AlignToScore;
 import frc.robot.commands.Spin180;
 import frc.robot.subsystems.CANClimbSubsystem;
 import frc.robot.subsystems.CANDriveSubsystem;
@@ -94,8 +95,8 @@ public class RobotContainer {
     // Spin 180 degrees in place when X button is pressed
     driverController.button(3).onTrue(new Spin180(driveSubsystem));
 
-    //Switch way robot is facing by reversing speed when back button is clicked
-    //driverController.button(7).toggleOnTrue();
+    // Hold back button to auto-align to AprilTag for scoring (aims + drives to 5ft)
+    driverController.button(7).whileTrue(new AlignToScore(driveSubsystem));
 
 
 
