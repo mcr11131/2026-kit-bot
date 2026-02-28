@@ -92,11 +92,8 @@ public class RobotContainer {
     // the intake
     driverController.button(2).whileTrue(new Eject(fuelSubsystem));
 
-    // Spin 180 degrees in place when X button is pressed
-    driverController.button(3).onTrue(new Spin180(driveSubsystem));
-
-    // Hold back button to auto-align to AprilTag for scoring (aims + drives to 5ft)
-    driverController.button(7).whileTrue(new AlignToScore(driveSubsystem, fuelSubsystem));
+    // Press X to start auto-align + launch sequence, press X again to stop
+    driverController.button(3).toggleOnTrue(new AlignToScore(driveSubsystem, fuelSubsystem));
 
 
 
