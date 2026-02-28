@@ -60,10 +60,10 @@ public class AlignToScore extends Command {
     // Filter to scoring tags based on alliance color
     var alliance = DriverStation.getAlliance();
     if (alliance.isPresent() && alliance.get() == Alliance.Blue) {
-      LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{25, 26});
+      LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{26});
     } else {
-      // Default to red alliance tags
-      LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{9, 10});
+      // Default to red alliance
+      LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{10});
     }
 
     SmartDashboard.putBoolean("Align/Ready to Shoot", false);
