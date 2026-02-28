@@ -13,6 +13,10 @@ import com.revrobotics.sim.SparkMaxSim;
 
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -30,6 +34,12 @@ public class CANFuelSubsystem extends SubsystemBase {
   private FlywheelSim launcherFlywheelSim;
   private FlywheelSim feederFlywheelSim;
 
+  // Telemetry log entries
+  private DoubleLogEntry logLauncherOutput;
+  private DoubleLogEntry logFeederOutput;
+  private DoubleLogEntry logLauncherCurrent;
+  private DoubleLogEntry logFeederCurrent;
+
   /** Creates a new CANBallSubsystem. */
   public CANFuelSubsystem() {
     // create brushless motors for each of the motors on the launcher mechanism
@@ -41,6 +51,17 @@ public class CANFuelSubsystem extends SubsystemBase {
     SparkMaxConfig feederConfig = new SparkMaxConfig();
     feederConfig.smartCurrentLimit(FEEDER_MOTOR_CURRENT_LIMIT);
     feederRoller.configure(feederConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    // Initialize telemetry log entries
+    DataLog log = DataLogManager.getLog();
+    logLauncherOutput = new DoubleLogEntry(log, "/fuel/launcherOutput");
+    logFeederOutput = new DoubleLogEntry(log, "/fuel/feederOutput");
+    logLauncherCurrent = new DoubleLogEntry(log, "/fuel/launcherCurrentAmps");
+    logFeederCurrent = new DoubleLogEntry(log, "/fuel/feederCurrentAmps");
+
+    // Clear any sticky faults from previous runs
+    intakeLauncherRoller.clearFaults();
+    feederRoller.clearFaults();
 
     // create the configuration for the launcher roller, set a current limit, set
     // the motor to inverted so that positive values are used for both intaking and
@@ -90,7 +111,15 @@ public class CANFuelSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    // Status indicators so drivers can see what's active
+    SmartDashboard.putBoolean("Intake/Launcher Active", intakeLauncherRoller.get() != 0);
+    SmartDashboard.putBoolean("Feeder Active", feederRoller.get() != 0);
+
+    // Log telemetry for post-match analysis
+    logLauncherOutput.append(intakeLauncherRoller.getAppliedOutput());
+    logFeederOutput.append(feederRoller.getAppliedOutput());
+    logLauncherCurrent.append(intakeLauncherRoller.getOutputCurrent());
+    logFeederCurrent.append(feederRoller.getOutputCurrent());
   }
 
   @Override

@@ -17,11 +17,17 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.sim.SparkMaxSim;
 
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.DriveConstants.*;
 import static frc.robot.Constants.SimConstants.*;
@@ -43,6 +49,28 @@ public class CANDriveSubsystem extends SubsystemBase {
   private SparkMaxSim rightLeaderSim;
   private SparkMaxSim rightFollowerSim;
   private DifferentialDrivetrainSim drivetrainSim;
+
+  // Telemetry log entries for post-match analysis
+  private DoubleLogEntry logLeftVelocity;
+  private DoubleLogEntry logRightVelocity;
+  private DoubleLogEntry logLeftPosition;
+  private DoubleLogEntry logRightPosition;
+  private DoubleLogEntry logLeftOutput;
+  private DoubleLogEntry logRightOutput;
+  private DoubleLogEntry logLeftCurrent;
+  private DoubleLogEntry logRightCurrent;
+  private DoubleLogEntry logBrownoutScale;
+  private BooleanLogEntry logEncoderWarning;
+
+  // Encoder health tracking — detect stuck encoders while motors are commanded
+  private double encoderWarningStartTime = -1;
+  private static final double ENCODER_WARNING_THRESHOLD_SECONDS = 2.0;
+  private static final double MOTOR_COMMAND_THRESHOLD = 0.1;
+  private boolean encoderWarningActive = false;
+
+  // Track last commanded speeds for status display
+  private double lastCommandedLeft = 0;
+  private double lastCommandedRight = 0;
 
   public CANDriveSubsystem() {
     // create brushed motors for drive
@@ -105,6 +133,28 @@ public class CANDriveSubsystem extends SubsystemBase {
     leftEncoder = leftLeader.getEncoder();
     rightEncoder = rightLeader.getEncoder();
 
+    // Clear any sticky faults from previous runs
+    leftLeader.clearFaults();
+    leftFollower.clearFaults();
+    rightLeader.clearFaults();
+    rightFollower.clearFaults();
+
+    // Initialize telemetry log entries
+    DataLog log = DataLogManager.getLog();
+    logLeftVelocity = new DoubleLogEntry(log, "/drive/leftVelocityMps");
+    logRightVelocity = new DoubleLogEntry(log, "/drive/rightVelocityMps");
+    logLeftPosition = new DoubleLogEntry(log, "/drive/leftPositionM");
+    logRightPosition = new DoubleLogEntry(log, "/drive/rightPositionM");
+    logLeftOutput = new DoubleLogEntry(log, "/drive/leftOutput");
+    logRightOutput = new DoubleLogEntry(log, "/drive/rightOutput");
+    logLeftCurrent = new DoubleLogEntry(log, "/drive/leftCurrentAmps");
+    logRightCurrent = new DoubleLogEntry(log, "/drive/rightCurrentAmps");
+    logBrownoutScale = new DoubleLogEntry(log, "/drive/brownoutScale");
+    logEncoderWarning = new BooleanLogEntry(log, "/drive/encoderWarning");
+
+    // Initialize brake mode toggle on dashboard
+    SmartDashboard.putBoolean("Brake Mode", false);
+
     // Initialize simulation objects for all four motors
     DCMotor driveMotor = DCMotor.getCIM(2);
     leftLeaderSim = new SparkMaxSim(leftLeader, driveMotor);
@@ -123,6 +173,60 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // Encoder health check - warn if motors are commanded but encoders read zero
+    boolean motorsCommanded = Math.abs(lastCommandedLeft) > MOTOR_COMMAND_THRESHOLD
+        || Math.abs(lastCommandedRight) > MOTOR_COMMAND_THRESHOLD;
+    boolean encodersStuck = Math.abs(leftEncoder.getVelocity()) < 0.01
+        && Math.abs(rightEncoder.getVelocity()) < 0.01;
+
+    if (motorsCommanded && encodersStuck) {
+      if (encoderWarningStartTime < 0) {
+        encoderWarningStartTime = Timer.getFPGATimestamp();
+      }
+      encoderWarningActive = (Timer.getFPGATimestamp() - encoderWarningStartTime)
+          > ENCODER_WARNING_THRESHOLD_SECONDS;
+      SmartDashboard.putBoolean("Encoder Warning", encoderWarningActive);
+    } else {
+      encoderWarningStartTime = -1;
+      encoderWarningActive = false;
+      SmartDashboard.putBoolean("Encoder Warning", false);
+    }
+
+    // Status indicators
+    SmartDashboard.putNumber("Left Velocity (m/s)", leftEncoder.getVelocity());
+    SmartDashboard.putNumber("Right Velocity (m/s)", rightEncoder.getVelocity());
+    SmartDashboard.putString("Drive Mode", "Tank");
+
+    // Brownout indicator
+    double brownout = getBrownoutScale();
+    SmartDashboard.putBoolean("Brownout Active", brownout < 1.0);
+
+    // Log telemetry for post-match analysis
+    logLeftVelocity.append(leftEncoder.getVelocity());
+    logRightVelocity.append(rightEncoder.getVelocity());
+    logLeftPosition.append(leftEncoder.getPosition());
+    logRightPosition.append(rightEncoder.getPosition());
+    logLeftOutput.append(leftLeader.getAppliedOutput());
+    logRightOutput.append(rightLeader.getAppliedOutput());
+    logLeftCurrent.append(leftLeader.getOutputCurrent());
+    logRightCurrent.append(rightLeader.getOutputCurrent());
+    logBrownoutScale.append(brownout);
+    logEncoderWarning.append(encoderWarningActive);
+  }
+
+  /**
+   * Returns a speed scaling factor based on battery voltage.
+   * Below 8V, scales to 50% to prevent brownout-induced Rio reboots.
+   * Between 8V and 9V, linearly scales from 50% to 100%.
+   */
+  private double getBrownoutScale() {
+    double voltage = RobotController.getBatteryVoltage();
+    if (voltage < 8.0) {
+      return 0.5;
+    } else if (voltage < 9.0) {
+      return 0.5 + 0.5 * (voltage - 8.0);
+    }
+    return 1.0;
   }
 
   @Override
@@ -166,13 +270,19 @@ public class CANDriveSubsystem extends SubsystemBase {
   }
 
   public void driveArcade(double xSpeed, double zRotation) {
-    var speeds = DifferentialDrive.arcadeDriveIK(xSpeed, zRotation, true);
+    double scale = getBrownoutScale();
+    var speeds = DifferentialDrive.arcadeDriveIK(xSpeed * scale, zRotation * scale, true);
+    lastCommandedLeft = speeds.left;
+    lastCommandedRight = speeds.right;
     leftController.setReference(speeds.left * MAX_SPEED_MPS, ControlType.kVelocity);
     rightController.setReference(speeds.right * MAX_SPEED_MPS, ControlType.kVelocity);
   }
 
    public void driveTank(double lSpeed, double rSpeed) {
-    var speeds = DifferentialDrive.tankDriveIK(lSpeed, rSpeed, true);
+    double scale = getBrownoutScale();
+    var speeds = DifferentialDrive.tankDriveIK(lSpeed * scale, rSpeed * scale, true);
+    lastCommandedLeft = speeds.left;
+    lastCommandedRight = speeds.right;
     leftController.setReference(speeds.left * TANK_SPEED_MODIFIER, ControlType.kDutyCycle);
     rightController.setReference(speeds.right * TANK_SPEED_MODIFIER, ControlType.kDutyCycle);
   }

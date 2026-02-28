@@ -7,6 +7,7 @@ package frc.robot.commands;
 import static frc.robot.Constants.OperatorConstants.*;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.LimelightHelpers;
@@ -17,6 +18,11 @@ public class Tracking extends Command {
   /** Creates a new Drive. */
   CANDriveSubsystem driveSubsystem;
 
+  // Heartbeat staleness tracking — detect Limelight disconnection
+  private double lastHeartbeat = -1;
+  private double lastHeartbeatChangeTime = 0;
+  private static final double HEARTBEAT_TIMEOUT_SECONDS = 0.5;
+
   public Tracking(CANDriveSubsystem driveSystem) {
     // Use addRequirements() here to declare subsystem dependencies.
     addRequirements(driveSystem);
@@ -26,15 +32,35 @@ public class Tracking extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    lastHeartbeat = LimelightHelpers.getHeartbeat("limelight");
+    lastHeartbeatChangeTime = Timer.getFPGATimestamp();
+  }
+
+  /**
+   * Returns true if the Limelight heartbeat is stale (hasn't changed in 500ms),
+   * indicating the camera is disconnected or frozen.
+   */
+  private boolean isLimelightStale() {
+    double currentHeartbeat = LimelightHelpers.getHeartbeat("limelight");
+    double now = Timer.getFPGATimestamp();
+
+    if (currentHeartbeat != lastHeartbeat) {
+      lastHeartbeat = currentHeartbeat;
+      lastHeartbeatChangeTime = now;
+    }
+
+    return (now - lastHeartbeatChangeTime) > HEARTBEAT_TIMEOUT_SECONDS;
   }
 
   // Called every time the scheduler runs while the command is scheduled.
-  // The Y axis of the controller is inverted so that pushing the
-  // stick away from you (a negative value) drives the robot forwards (a positive
-  // value). The X axis is scaled down so the rotation is more easily
-  // controllable.
   @Override
   public void execute() {
+    // Stop if Limelight is stale/disconnected
+    if (isLimelightStale()) {
+      driveSubsystem.driveArcade(0, 0);
+      return;
+    }
+
     if (!LimelightHelpers.getTV("limelight")) {
       driveSubsystem.driveArcade(0, 0);
       return;

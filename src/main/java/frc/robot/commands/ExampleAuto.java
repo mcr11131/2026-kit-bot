@@ -17,8 +17,8 @@ public class ExampleAuto extends SequentialCommandGroup {
     // Add your commands in the addCommands() call, e.g.
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
-    // Drive forward 0.5 meters using encoder-based distance control
-    new AutoDrive(driveSubsystem, 0.5, 0.0, 0.5),
+    // Drive forward 0.5 meters with a 3-second timeout to prevent stalling on encoder failure
+    new AutoDrive(driveSubsystem, 0.5, 0.0, 0.5).withTimeout(3),
     // Spin up the launcher for 1 second and then launch balls for 9 seconds, for a
     // total of 10 seconds
     new Launch(ballSubsystem).withTimeout(10));

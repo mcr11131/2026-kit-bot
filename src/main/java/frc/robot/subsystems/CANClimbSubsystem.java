@@ -15,6 +15,9 @@ import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.math.system.plant.LinearSystemId;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
+import edu.wpi.first.util.datalog.DataLog;
+import edu.wpi.first.util.datalog.DoubleLogEntry;
+import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.ClimberConstants.*;
@@ -28,6 +31,12 @@ public class CANClimbSubsystem extends SubsystemBase {
   private SparkMaxSim climber1Sim;
   private SparkMaxSim climber2Sim;
 
+  // Telemetry log entries
+  private DoubleLogEntry logLeftClimbOutput;
+  private DoubleLogEntry logRightClimbOutput;
+  private DoubleLogEntry logLeftClimbCurrent;
+  private DoubleLogEntry logRightClimbCurrent;
+
   // Creates a new CANBallSubsystem.
   public CANClimbSubsystem() {
     // create brushed motors for each of the motors on the launcher mechanism
@@ -40,6 +49,17 @@ public class CANClimbSubsystem extends SubsystemBase {
     climbConfig.smartCurrentLimit(CLIMBER_ONE_CURRENT_LIMIT);
     climberOne.configure(climbConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     climberTwo.configure(climbConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    // Clear any sticky faults from previous runs
+    climberOne.clearFaults();
+    climberTwo.clearFaults();
+
+    // Initialize telemetry log entries
+    DataLog log = DataLogManager.getLog();
+    logLeftClimbOutput = new DoubleLogEntry(log, "/climb/leftOutput");
+    logRightClimbOutput = new DoubleLogEntry(log, "/climb/rightOutput");
+    logLeftClimbCurrent = new DoubleLogEntry(log, "/climb/leftCurrentAmps");
+    logRightClimbCurrent = new DoubleLogEntry(log, "/climb/rightCurrentAmps");
     
     // put default values for various fuel operations onto the dashboard
     // all commands using this subsystem pull values from the dashbaord to allow
@@ -86,7 +106,15 @@ public class CANClimbSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // This method will be called once per scheduler run
+    // Status indicators for climb motors
+    SmartDashboard.putBoolean("Left Climb Active", climberOne.get() != 0);
+    SmartDashboard.putBoolean("Right Climb Active", climberTwo.get() != 0);
+
+    // Log telemetry for post-match analysis
+    logLeftClimbOutput.append(climberOne.getAppliedOutput());
+    logRightClimbOutput.append(climberTwo.getAppliedOutput());
+    logLeftClimbCurrent.append(climberOne.getOutputCurrent());
+    logRightClimbCurrent.append(climberTwo.getOutputCurrent());
   }
 
   /*
