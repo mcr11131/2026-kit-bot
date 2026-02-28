@@ -11,6 +11,8 @@ import edu.wpi.first.hal.FRCNetComm.tResourceType;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.GenericHID;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.TimedRobot;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -29,6 +31,12 @@ public class Robot extends TimedRobot {
   private Command m_autonomousCommand;
 
   private RobotContainer m_robotContainer;
+
+  // Endgame rumble alert
+  private boolean endgameRumbled = false;
+  private double rumbleStartTime = -1;
+  private static final double ENDGAME_TIME = 30.0; // seconds remaining when endgame starts
+  private static final double RUMBLE_DURATION = 5.0;
 
   /**
    * This function is run when the robot is first started up and should be used
@@ -135,6 +143,8 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     DataLogManager.log(">> TELEOP INIT");
+    endgameRumbled = false;
+    rumbleStartTime = -1;
     // This makes sure that the autonomous stops running when
     // teleop starts running. If you want the autonomous to
     // continue until interrupted by another command, remove
@@ -147,6 +157,21 @@ public class Robot extends TimedRobot {
   /** This function is called periodically during operator control. */
   @Override
   public void teleopPeriodic() {
+    double matchTime = DriverStation.getMatchTime();
+
+    // Vibrate controller when endgame starts (30s remaining)
+    if (matchTime <= ENDGAME_TIME && matchTime > 0 && !endgameRumbled) {
+      endgameRumbled = true;
+      rumbleStartTime = Timer.getFPGATimestamp();
+      m_robotContainer.setRumble(1.0);
+      DataLogManager.log(">> ENDGAME ALERT - Time to climb!");
+    }
+
+    // Stop rumble after 5 seconds
+    if (rumbleStartTime > 0 && (Timer.getFPGATimestamp() - rumbleStartTime) >= RUMBLE_DURATION) {
+      m_robotContainer.setRumble(0);
+      rumbleStartTime = -1;
+    }
   }
 
   @Override
