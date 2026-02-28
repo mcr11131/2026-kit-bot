@@ -32,6 +32,9 @@ public class Robot extends TimedRobot {
 
   private RobotContainer m_robotContainer;
 
+  // HUB status tracking for fuel scoring windows
+  private final HubTracker hubTracker = new HubTracker();
+
   // Endgame rumble alert
   private boolean endgameRumbled = false;
   private double rumbleStartTime = -1;
@@ -126,6 +129,7 @@ public class Robot extends TimedRobot {
   @Override
   public void autonomousInit() {
     DataLogManager.log(">> AUTO INIT");
+    hubTracker.reset();
     m_autonomousCommand = m_robotContainer.getAutonomousCommand();
     DataLogManager.log("Auto selected: " + (m_autonomousCommand != null ? m_autonomousCommand.getName() : "NONE"));
 
@@ -143,6 +147,9 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopInit() {
     DataLogManager.log(">> TELEOP INIT");
+
+    // Read FMS game data to determine HUB shift order
+    hubTracker.readGameData();
     endgameRumbled = false;
     rumbleStartTime = -1;
     // This makes sure that the autonomous stops running when
@@ -158,6 +165,9 @@ public class Robot extends TimedRobot {
   @Override
   public void teleopPeriodic() {
     double matchTime = DriverStation.getMatchTime();
+
+    // Update HUB active/inactive status on dashboard
+    hubTracker.update(matchTime);
 
     // Vibrate controller when endgame starts (30s remaining)
     if (matchTime <= ENDGAME_TIME && matchTime > 0 && !endgameRumbled) {
