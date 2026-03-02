@@ -53,6 +53,9 @@ public class CANDriveSubsystem extends SubsystemBase {
   private final DoubleLogEntry rightPositionLog;
   private final DoubleLogEntry batteryVoltageLog;
 
+  // NavX Gyro
+  private final AHRS navx;
+
   // Simulation support
   private SparkMaxSim leftLeaderSim;
   private SparkMaxSim leftFollowerSim;
@@ -122,6 +125,9 @@ public class CANDriveSubsystem extends SubsystemBase {
     rightController = rightLeader.getClosedLoopController();
     leftEncoder = leftLeader.getEncoder();
     rightEncoder = rightLeader.getEncoder();
+
+    // Initialize NavX gyro (SPI on MXP port)
+    navx = new AHRS(AHRS.NavXComType.kMXP_SPI);
 
     // Initialize data logging
     var log = DataLogManager.getLog();
