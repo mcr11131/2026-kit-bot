@@ -308,6 +308,12 @@ public class CANDriveSubsystem extends SubsystemBase {
     rightController.setReference(speeds.right * TANK_SPEED_MODIFIER, ControlType.kDutyCycle);
   }
 
+  // Direct duty cycle spin - bypasses speed modifiers for reliable in-place rotation
+  public void spinInPlace(double speed) {
+    leftController.setReference(speed, ControlType.kDutyCycle);
+    rightController.setReference(-speed, ControlType.kDutyCycle);
+  }
+
   // Cheesy Drive (Curvature Drive) - provides car-like steering
   // When moving forward, turning is proportional to speed (like steering a car)
   // allowTurnInPlace enables quick turning when stationary or moving slowly
