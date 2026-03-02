@@ -30,6 +30,7 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.LimelightHelpers;
 import static frc.robot.Constants.DriveConstants.*;
 import static frc.robot.Constants.SimConstants.*;
+import static frc.robot.Constants.VisionConstants.*;
 
 public class CANDriveSubsystem extends SubsystemBase {
   private final SparkMax leftLeader;
@@ -240,12 +241,12 @@ public class CANDriveSubsystem extends SubsystemBase {
     SmartDashboard.putBoolean("NavX/Calibrating", navx.isCalibrating());
 
     // Limelight data — always visible on dashboard
-    SmartDashboard.putBoolean("Limelight/Target Valid", LimelightHelpers.getTV("limelight"));
-    SmartDashboard.putNumber("Limelight/TX", LimelightHelpers.getTX("limelight"));
-    SmartDashboard.putNumber("Limelight/TY", LimelightHelpers.getTY("limelight"));
-    SmartDashboard.putNumber("Limelight/Tag ID", LimelightHelpers.getFiducialID("limelight"));
-    SmartDashboard.putNumber("Limelight/TA (area)", LimelightHelpers.getTA("limelight"));
-    double[] pose = LimelightHelpers.getTargetPose_CameraSpace("limelight");
+    SmartDashboard.putBoolean("Limelight/Target Valid", LimelightHelpers.getTV(LIMELIGHT_NAME));
+    SmartDashboard.putNumber("Limelight/TX", LimelightHelpers.getTX(LIMELIGHT_NAME));
+    SmartDashboard.putNumber("Limelight/TY", LimelightHelpers.getTY(LIMELIGHT_NAME));
+    SmartDashboard.putNumber("Limelight/Tag ID", LimelightHelpers.getFiducialID(LIMELIGHT_NAME));
+    SmartDashboard.putNumber("Limelight/TA (area)", LimelightHelpers.getTA(LIMELIGHT_NAME));
+    double[] pose = LimelightHelpers.getTargetPose_CameraSpace(LIMELIGHT_NAME);
     if (pose.length >= 3) {
       SmartDashboard.putNumber("Limelight/Distance (ft)", pose[2] * 3.28084);
     }
@@ -337,3 +338,4 @@ public class CANDriveSubsystem extends SubsystemBase {
 
 
 }
+

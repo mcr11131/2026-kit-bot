@@ -5,6 +5,7 @@
 package frc.robot.commands;
 
 import static frc.robot.Constants.OperatorConstants.*;
+import static frc.robot.Constants.VisionConstants.*;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.wpilibj2.command.Command;
@@ -35,11 +36,11 @@ public class Tracking extends Command {
   // controllable.
   @Override
   public void execute() {
-    if (!LimelightHelpers.getTV("limelight")) {
+    if (!LimelightHelpers.getTV(LIMELIGHT_NAME)) {
       driveSubsystem.driveArcade(0, 0);
       return;
     }
-    double xOffset = LimelightHelpers.getTX("limelight");
+    double xOffset = LimelightHelpers.getTX(LIMELIGHT_NAME);
     driveSubsystem.driveArcade(
         0,
         -MathUtil.applyDeadband(speedToDrive(xOffset), 0.05) * ROTATION_SCALING);
@@ -72,4 +73,5 @@ if (Math.abs(offset)>4){
   return speed;
 }
 }
+
 

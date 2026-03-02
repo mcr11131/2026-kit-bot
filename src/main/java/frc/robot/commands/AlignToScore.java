@@ -14,6 +14,7 @@ import frc.robot.LimelightHelpers;
 import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
 import static frc.robot.Constants.FuelConstants.*;
+import static frc.robot.Constants.VisionConstants.*;
 
 /**
  * Full scoring sequence — hold one button to:
@@ -62,7 +63,7 @@ public class AlignToScore extends Command {
     // TODO: Re-enable once Limelight 4 firmware supports SetFiducialIDFiltersOverride
     // var alliance = DriverStation.getAlliance();
     // int targetTag = (alliance.isPresent() && alliance.get() == Alliance.Blue) ? 26 : 10;
-    // LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{targetTag});
+    // LimelightHelpers.SetFiducialIDFiltersOverride(LIMELIGHT_NAME, new int[]{targetTag});
 
     SmartDashboard.putBoolean("Align/Ready to Shoot", false);
     SmartDashboard.putString("Align/Status", "Searching for any tag...");
@@ -72,10 +73,10 @@ public class AlignToScore extends Command {
   @Override
   public void execute() {
     // Debug: always show raw Limelight state
-    boolean tv = LimelightHelpers.getTV("limelight");
-    double rawTx = LimelightHelpers.getTX("limelight");
-    double rawTy = LimelightHelpers.getTY("limelight");
-    double tagId = LimelightHelpers.getFiducialID("limelight");
+    boolean tv = LimelightHelpers.getTV(LIMELIGHT_NAME);
+    double rawTx = LimelightHelpers.getTX(LIMELIGHT_NAME);
+    double rawTy = LimelightHelpers.getTY(LIMELIGHT_NAME);
+    double tagId = LimelightHelpers.getFiducialID(LIMELIGHT_NAME);
     SmartDashboard.putBoolean("Align/Target Valid", tv);
     SmartDashboard.putNumber("Align/Raw TX", rawTx);
     SmartDashboard.putNumber("Align/Raw TY", rawTy);
@@ -97,7 +98,7 @@ public class AlignToScore extends Command {
     }
 
     // --- ROTATION: center on the tag using tx ---
-    double tx = LimelightHelpers.getTX("limelight");
+    double tx = LimelightHelpers.getTX(LIMELIGHT_NAME);
     double rotationSpeed = 0;
     boolean aimed = Math.abs(tx) < AIM_TOLERANCE_DEGREES;
 
@@ -112,7 +113,7 @@ public class AlignToScore extends Command {
     }
 
     // --- DISTANCE: drive to 5 feet using 3D pose ---
-    double[] targetPose = LimelightHelpers.getTargetPose_CameraSpace("limelight");
+    double[] targetPose = LimelightHelpers.getTargetPose_CameraSpace(LIMELIGHT_NAME);
     double driveSpeed = 0;
     boolean atDistance = false;
 
@@ -209,7 +210,7 @@ public class AlignToScore extends Command {
     System.out.println("[AlignToScore] STOPPED" + (interrupted ? " (interrupted)" : ""));
 
     // Tag filter disabled for now
-    // LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{});
+    // LimelightHelpers.SetFiducialIDFiltersOverride(LIMELIGHT_NAME, new int[]{});
 
     SmartDashboard.putBoolean("Align/Ready to Shoot", false);
     SmartDashboard.putString("Align/Status", "Stopped");
@@ -220,3 +221,4 @@ public class AlignToScore extends Command {
     return false;
   }
 }
+

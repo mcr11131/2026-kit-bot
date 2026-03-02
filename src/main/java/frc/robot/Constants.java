@@ -107,6 +107,10 @@ public final class Constants {
     public static final double FEEDER_MOI = 0.003; // kg*m²
   }
 
+  public static final class VisionConstants {
+    public static final String LIMELIGHT_NAME = "limelight-brain";
+  }
+
   public static final class OperatorConstants {
     // Port constants for driver and operator controllers. These should match the
     // values in the Joystick tab of the Driver Station software
