@@ -53,6 +53,12 @@ public class Drive extends Command {
       throttle = -throttle;
     }
 
+    // If no throttle but steering input, spin in place at 25% power
+    if (throttle == 0 && turn != 0) {
+      driveSubsystem.driveArcade(0, Math.copySign(0.25, turn));
+      return;
+    }
+
     // Use cheesy drive (curvature drive)
     driveSubsystem.driveCurvature(throttle, turn, quickTurn);
 
