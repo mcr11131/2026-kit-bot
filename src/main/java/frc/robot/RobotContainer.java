@@ -93,8 +93,8 @@ public class RobotContainer {
     // the intake
     driverController.button(2).whileTrue(new Eject(fuelSubsystem));
 
-    // Press X to start auto-align + launch sequence, press X again to stop
-    driverController.button(3).toggleOnTrue(new AlignToScore(driveSubsystem, fuelSubsystem));
+    // Hold X to auto-align + launch, release to stop
+    driverController.button(3).whileTrue(new AlignToScore(driveSubsystem, fuelSubsystem));
 
 
 
