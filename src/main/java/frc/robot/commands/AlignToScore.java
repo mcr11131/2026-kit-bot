@@ -57,20 +57,14 @@ public class AlignToScore extends Command {
     launchState = LaunchState.ALIGNING;
     spinUpTimer.reset();
 
-    // Filter to scoring tags based on alliance color
-    var alliance = DriverStation.getAlliance();
-    int targetTag;
-    if (alliance.isPresent() && alliance.get() == Alliance.Blue) {
-      targetTag = 26;
-    } else {
-      targetTag = 10;
-    }
-    LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{targetTag});
+    // NOTE: ID filter disabled — was causing Limelight to report no target
+    // TODO: Re-enable once Limelight 4 firmware supports SetFiducialIDFiltersOverride
+    // var alliance = DriverStation.getAlliance();
+    // int targetTag = (alliance.isPresent() && alliance.get() == Alliance.Blue) ? 26 : 10;
+    // LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{targetTag});
 
     SmartDashboard.putBoolean("Align/Ready to Shoot", false);
-    SmartDashboard.putNumber("Align/Target Tag", targetTag);
-    SmartDashboard.putString("Align/Alliance", alliance.isPresent() ? alliance.get().toString() : "NOT SET (defaulting Red)");
-    SmartDashboard.putString("Align/Status", "Searching for tag " + targetTag + "...");
+    SmartDashboard.putString("Align/Status", "Searching for any tag...");
   }
 
   @Override
@@ -203,8 +197,8 @@ public class AlignToScore extends Command {
     fuelSubsystem.stop();
     spinUpTimer.stop();
 
-    // Clear the tag filter so other commands can see all tags
-    LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{});
+    // Tag filter disabled for now
+    // LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{});
 
     SmartDashboard.putBoolean("Align/Ready to Shoot", false);
     SmartDashboard.putString("Align/Status", "Stopped");
