@@ -45,6 +45,7 @@ public class AlignToScore extends Command {
   private enum LaunchState { ALIGNING, SPINNING_UP, LAUNCHING }
   private LaunchState launchState;
   private final Timer spinUpTimer = new Timer();
+  private int debugCounter = 0;
 
   public AlignToScore(CANDriveSubsystem driveSystem, CANFuelSubsystem fuelSystem) {
     addRequirements(driveSystem, fuelSystem);
@@ -65,6 +66,7 @@ public class AlignToScore extends Command {
 
     SmartDashboard.putBoolean("Align/Ready to Shoot", false);
     SmartDashboard.putString("Align/Status", "Searching for any tag...");
+    System.out.println("[AlignToScore] STARTED - searching for tags");
   }
 
   @Override
@@ -78,6 +80,13 @@ public class AlignToScore extends Command {
     SmartDashboard.putNumber("Align/Raw TX", rawTx);
     SmartDashboard.putNumber("Align/Raw TY", rawTy);
     SmartDashboard.putNumber("Align/Detected Tag ID", tagId);
+
+    // Print to DS console every 50 cycles (~1 second) to avoid spam
+    if (debugCounter++ % 50 == 0) {
+      System.out.println("[AlignToScore] tv=" + tv + " tx=" + String.format("%.1f", rawTx) 
+          + " ty=" + String.format("%.1f", rawTy) + " tagId=" + (int)tagId 
+          + " state=" + launchState);
+    }
 
     // No target — stop and wait
     if (!tv) {
@@ -196,6 +205,8 @@ public class AlignToScore extends Command {
     driveSubsystem.driveArcade(0, 0);
     fuelSubsystem.stop();
     spinUpTimer.stop();
+    debugCounter = 0;
+    System.out.println("[AlignToScore] STOPPED" + (interrupted ? " (interrupted)" : ""));
 
     // Tag filter disabled for now
     // LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{});
