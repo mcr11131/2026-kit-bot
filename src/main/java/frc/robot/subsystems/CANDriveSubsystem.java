@@ -54,6 +54,15 @@ public class CANDriveSubsystem extends SubsystemBase {
   private final DoubleLogEntry rightPositionLog;
   private final DoubleLogEntry batteryVoltageLog;
 
+  // NavX data logging entries
+  private final DoubleLogEntry navxYawLog;
+  private final DoubleLogEntry navxPitchLog;
+  private final DoubleLogEntry navxRollLog;
+  private final DoubleLogEntry navxAccelXLog;
+  private final DoubleLogEntry navxAccelYLog;
+  private final DoubleLogEntry navxAngleLog;
+  private final DoubleLogEntry navxRateLog;
+
   // NavX Gyro
   private final AHRS navx;
 
@@ -144,6 +153,15 @@ public class CANDriveSubsystem extends SubsystemBase {
     rightPositionLog = new DoubleLogEntry(log, "/drive/rightPosition");
     batteryVoltageLog = new DoubleLogEntry(log, "/drive/batteryVoltage");
 
+    // NavX data log entries
+    navxYawLog = new DoubleLogEntry(log, "/navx/yaw");
+    navxPitchLog = new DoubleLogEntry(log, "/navx/pitch");
+    navxRollLog = new DoubleLogEntry(log, "/navx/roll");
+    navxAccelXLog = new DoubleLogEntry(log, "/navx/accelX");
+    navxAccelYLog = new DoubleLogEntry(log, "/navx/accelY");
+    navxAngleLog = new DoubleLogEntry(log, "/navx/angle");
+    navxRateLog = new DoubleLogEntry(log, "/navx/rate");
+
     // Initialize simulation objects for all four motors
     DCMotor driveMotor = DCMotor.getCIM(2);
     leftLeaderSim = new SparkMaxSim(leftLeader, driveMotor);
@@ -200,6 +218,34 @@ public class CANDriveSubsystem extends SubsystemBase {
     leftPositionLog.append(leftPosition);
     rightPositionLog.append(rightPosition);
     batteryVoltageLog.append(batteryVoltage);
+
+    // NavX gyro data — real-time dashboard
+    double yaw = navx.getYaw();
+    double pitch = navx.getPitch();
+    double roll = navx.getRoll();
+    double accelX = navx.getWorldLinearAccelX();
+    double accelY = navx.getWorldLinearAccelY();
+    double angle = navx.getAngle();
+    double rate = navx.getRate();
+
+    SmartDashboard.putNumber("NavX/Yaw", yaw);
+    SmartDashboard.putNumber("NavX/Pitch", pitch);
+    SmartDashboard.putNumber("NavX/Roll", roll);
+    SmartDashboard.putNumber("NavX/Accel X", accelX);
+    SmartDashboard.putNumber("NavX/Accel Y", accelY);
+    SmartDashboard.putNumber("NavX/Angle (continuous)", angle);
+    SmartDashboard.putNumber("NavX/Turn Rate (deg/s)", rate);
+    SmartDashboard.putBoolean("NavX/Connected", navx.isConnected());
+    SmartDashboard.putBoolean("NavX/Calibrating", navx.isCalibrating());
+
+    // NavX data log files for post-match analysis
+    navxYawLog.append(yaw);
+    navxPitchLog.append(pitch);
+    navxRollLog.append(roll);
+    navxAccelXLog.append(accelX);
+    navxAccelYLog.append(accelY);
+    navxAngleLog.append(angle);
+    navxRateLog.append(rate);
   }
 
   @Override
