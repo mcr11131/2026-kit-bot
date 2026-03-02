@@ -27,6 +27,7 @@ import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
 import edu.wpi.first.wpilibj.simulation.RoboRioSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.LimelightHelpers;
 import static frc.robot.Constants.DriveConstants.*;
 import static frc.robot.Constants.SimConstants.*;
 
@@ -237,6 +238,17 @@ public class CANDriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("NavX/Turn Rate (deg/s)", rate);
     SmartDashboard.putBoolean("NavX/Connected", navx.isConnected());
     SmartDashboard.putBoolean("NavX/Calibrating", navx.isCalibrating());
+
+    // Limelight data — always visible on dashboard
+    SmartDashboard.putBoolean("Limelight/Target Valid", LimelightHelpers.getTV("limelight"));
+    SmartDashboard.putNumber("Limelight/TX", LimelightHelpers.getTX("limelight"));
+    SmartDashboard.putNumber("Limelight/TY", LimelightHelpers.getTY("limelight"));
+    SmartDashboard.putNumber("Limelight/Tag ID", LimelightHelpers.getFiducialID("limelight"));
+    SmartDashboard.putNumber("Limelight/TA (area)", LimelightHelpers.getTA("limelight"));
+    double[] pose = LimelightHelpers.getTargetPose_CameraSpace("limelight");
+    if (pose.length >= 3) {
+      SmartDashboard.putNumber("Limelight/Distance (ft)", pose[2] * 3.28084);
+    }
 
     // NavX data log files for post-match analysis
     navxYawLog.append(yaw);

@@ -59,24 +59,37 @@ public class AlignToScore extends Command {
 
     // Filter to scoring tags based on alliance color
     var alliance = DriverStation.getAlliance();
+    int targetTag;
     if (alliance.isPresent() && alliance.get() == Alliance.Blue) {
-      LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{26});
+      targetTag = 26;
     } else {
-      // Default to red alliance
-      LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{10});
+      targetTag = 10;
     }
+    LimelightHelpers.SetFiducialIDFiltersOverride("limelight", new int[]{targetTag});
 
     SmartDashboard.putBoolean("Align/Ready to Shoot", false);
-    SmartDashboard.putString("Align/Status", "Searching for tags 9/10...");
+    SmartDashboard.putNumber("Align/Target Tag", targetTag);
+    SmartDashboard.putString("Align/Alliance", alliance.isPresent() ? alliance.get().toString() : "NOT SET (defaulting Red)");
+    SmartDashboard.putString("Align/Status", "Searching for tag " + targetTag + "...");
   }
 
   @Override
   public void execute() {
+    // Debug: always show raw Limelight state
+    boolean tv = LimelightHelpers.getTV("limelight");
+    double rawTx = LimelightHelpers.getTX("limelight");
+    double rawTy = LimelightHelpers.getTY("limelight");
+    double tagId = LimelightHelpers.getFiducialID("limelight");
+    SmartDashboard.putBoolean("Align/Target Valid", tv);
+    SmartDashboard.putNumber("Align/Raw TX", rawTx);
+    SmartDashboard.putNumber("Align/Raw TY", rawTy);
+    SmartDashboard.putNumber("Align/Detected Tag ID", tagId);
+
     // No target — stop and wait
-    if (!LimelightHelpers.getTV("limelight")) {
+    if (!tv) {
       driveSubsystem.driveArcade(0, 0);
       SmartDashboard.putBoolean("Align/Ready to Shoot", false);
-      SmartDashboard.putString("Align/Status", "No target");
+      SmartDashboard.putString("Align/Status", "No target (tv=false, tag=" + tagId + ")");
       return;
     }
 
