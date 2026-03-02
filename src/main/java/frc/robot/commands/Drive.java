@@ -32,23 +32,17 @@ public class Drive extends Command {
   }
 
   // Called every time the scheduler runs while the command is scheduled.
-  // Cheesy Drive (Curvature Drive) - Racing style controls:
-  // - Left trigger (axis 2): forward throttle
-  // - Right trigger (axis 3): reverse throttle
-  // - Right stick X-axis: steering (like a steering wheel)
+  // Cheesy Drive (Curvature Drive) - Split arcade controls:
+  // - Left stick Y-axis: throttle (push forward = drive forward)
+  // - Right stick X-axis: steering
   // - Left stick click (button 9): quick turn for sharp turns while moving
   @Override
   public void execute() {
-    // Get forward and reverse throttle from triggers
-    // Increased deadband to 0.15 to reduce jitter from controller noise
-    double forwardThrottle = MathUtil.applyDeadband(controller.getRawAxis(2), 0.15);
-    double reverseThrottle = MathUtil.applyDeadband(controller.getRawAxis(3), 0.15);
+    // Get throttle from left stick Y-axis (inverted: pushing forward is negative on axis)
+    double throttle = -MathUtil.applyDeadband(controller.getRawAxis(1), 0.15) * DRIVE_SCALING;
 
-    // Combine triggers into single throttle value (forward is positive, reverse is negative)
-    double throttle = (forwardThrottle - reverseThrottle) * DRIVE_SCALING;
 
     // Get turn rate from right stick X-axis (inverted so right stick right = turn right)
-    // Increased deadband to 0.15 to reduce jitter from controller noise
     double turn = -MathUtil.applyDeadband(controller.getRawAxis(4), 0.15) * ROTATION_SCALING;
 
     // Quick turn mode enabled when left stick is clicked (button 9)
