@@ -4,6 +4,7 @@ import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CANDriveSubsystem;
+import static frc.robot.Constants.DriveConstants.*;
 
 /**
  * Spins the robot 180 degrees in place using the NavX gyro for accuracy.
@@ -13,18 +14,11 @@ public class Spin180 extends Command {
   private final PIDController pidController;
   private double targetAngle;
 
-  private static final double kP = 0.02;
-  private static final double kI = 0.0;
-  private static final double kD = 0.005;
-  private static final double TOLERANCE_DEGREES = 3.0;
-  private static final double MAX_SPIN_SPEED = 0.7;
-  private static final double MIN_SPIN_SPEED = 0.1;
-
   public Spin180(CANDriveSubsystem driveSubsystem) {
     this.driveSubsystem = driveSubsystem;
-    pidController = new PIDController(kP, kI, kD);
+    pidController = new PIDController(TURN_KP, TURN_KI, TURN_KD);
     pidController.enableContinuousInput(-180, 180);
-    pidController.setTolerance(TOLERANCE_DEGREES);
+    pidController.setTolerance(TURN_TOLERANCE_DEGREES);
     addRequirements(driveSubsystem);
   }
 
@@ -44,9 +38,9 @@ public class Spin180 extends Command {
   @Override
   public void execute() {
     double output = pidController.calculate(driveSubsystem.getHeading());
-    output = MathUtil.clamp(output, -MAX_SPIN_SPEED, MAX_SPIN_SPEED);
-    if (Math.abs(output) < MIN_SPIN_SPEED && !pidController.atSetpoint()) {
-      output = Math.copySign(MIN_SPIN_SPEED, output);
+    output = MathUtil.clamp(output, -MAX_TURN_SPEED, MAX_TURN_SPEED);
+    if (Math.abs(output) < MIN_TURN_SPEED && !pidController.atSetpoint()) {
+      output = Math.copySign(MIN_TURN_SPEED, output);
     }
     driveSubsystem.driveArcade(0, output);
   }

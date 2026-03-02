@@ -16,6 +16,7 @@ import com.revrobotics.spark.FeedbackSensor;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.sim.SparkMaxSim;
 
+import com.studica.frc.AHRS;
 import edu.wpi.first.math.system.plant.DCMotor;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -239,6 +240,14 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   public double getRightVelocity() {
     return rightEncoder.getVelocity();
+  }
+
+  public double getHeading() {
+    return navx.getYaw();
+  }
+
+  public void resetHeading() {
+    navx.reset();
   }
 
   public void driveArcade(double xSpeed, double zRotation) {

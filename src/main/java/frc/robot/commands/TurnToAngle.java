@@ -5,6 +5,7 @@ import edu.wpi.first.math.controller.PIDController;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CANDriveSubsystem;
+import static frc.robot.Constants.DriveConstants.*;
 
 /**
  * Turns the robot to a specific heading using the NavX gyro and PID control.
@@ -16,13 +17,6 @@ public class TurnToAngle extends Command {
   private final PIDController pidController;
   private final double targetAngleDegrees;
 
-  private static final double kP = 0.02;
-  private static final double kI = 0.0;
-  private static final double kD = 0.005;
-  private static final double TOLERANCE_DEGREES = 2.0;
-  private static final double MAX_TURN_SPEED = 0.6;
-  private static final double MIN_TURN_SPEED = 0.08;
-
   /**
    * @param driveSubsystem The drive subsystem
    * @param targetAngleDegrees The target heading in degrees (positive = counterclockwise)
@@ -31,9 +25,9 @@ public class TurnToAngle extends Command {
     this.driveSubsystem = driveSubsystem;
     this.targetAngleDegrees = targetAngleDegrees;
 
-    pidController = new PIDController(kP, kI, kD);
+    pidController = new PIDController(TURN_KP, TURN_KI, TURN_KD);
     pidController.enableContinuousInput(-180, 180);
-    pidController.setTolerance(TOLERANCE_DEGREES);
+    pidController.setTolerance(TURN_TOLERANCE_DEGREES);
 
     addRequirements(driveSubsystem);
   }

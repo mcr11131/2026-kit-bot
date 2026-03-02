@@ -41,6 +41,14 @@ public final class Constants {
     // on 40A breakers while still allowing strong performance.
     public static final int DRIVE_MOTOR_CURRENT_LIMIT = 60;
 
+    // NavX PID constants for turning commands (TurnToAngle, Spin180)
+    public static final double TURN_KP = 0.02;
+    public static final double TURN_KI = 0.0;
+    public static final double TURN_KD = 0.005;
+    public static final double TURN_TOLERANCE_DEGREES = 2.0;
+    public static final double MAX_TURN_SPEED = 0.6;
+    public static final double MIN_TURN_SPEED = 0.08;
+
     // Ramp rate in seconds from 0 to full throttle. Reduces current spikes and smooths acceleration.
     public static final double DRIVE_OPEN_LOOP_RAMP_RATE = 0.3;
   }
