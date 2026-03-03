@@ -8,6 +8,7 @@ import edu.wpi.first.cameraserver.CameraServer;
 import edu.wpi.first.cscore.HttpCamera;
 import edu.wpi.first.hal.HAL;
 import edu.wpi.first.hal.FRCNetComm.tResourceType;
+import edu.wpi.first.networktables.NetworkTableInstance;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DriverStation;
 import edu.wpi.first.wpilibj.TimedRobot;
@@ -48,7 +49,7 @@ public class Robot extends TimedRobot {
     m_robotContainer = new RobotContainer();
 
     // Add Limelight camera stream to Shuffleboard/SmartDashboard
-    HttpCamera limelightFeed = new HttpCamera("limelight", "http://limelight.local:5800");
+    HttpCamera limelightFeed = new HttpCamera("limelight", "http://10.111.31.200:5800");
     CameraServer.addCamera(limelightFeed);
 
     // Used to track usage of Kitbot code, please do not remove.
@@ -65,8 +66,24 @@ public class Robot extends TimedRobot {
    * and
    * SmartDashboard integrated updating.
    */
+  private boolean limelightDiagDone = false;
+
   @Override
   public void robotPeriodic() {
+    // One-time diagnostic: print all NT tables containing "limelight" to find the correct name
+    if (!limelightDiagDone) {
+      var tables = NetworkTableInstance.getDefault().getTable("").getSubTables();
+      for (String table : tables) {
+        if (table.toLowerCase().contains("limelight") || table.toLowerCase().contains("lime")) {
+          System.out.println("[LIMELIGHT DIAG] Found NT table: " + table);
+          var entries = NetworkTableInstance.getDefault().getTable(table).getKeys();
+          for (String entry : entries) {
+            System.out.println("[LIMELIGHT DIAG]   " + table + "/" + entry);
+          }
+          limelightDiagDone = true;
+        }
+      }
+    }
     // Runs the Scheduler. This is responsible for polling buttons, adding
     // newly-scheduled
     // commands, running already-scheduled commands, removing finished or
