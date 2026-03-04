@@ -7,8 +7,8 @@ package frc.robot.subsystems;
 
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkBase.PersistMode;
-import com.revrobotics.spark.SparkBase.ResetMode;
+import com.revrobotics.ResetMode;
+import com.revrobotics.PersistMode;
 import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
@@ -330,20 +330,20 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   public void driveArcade(double xSpeed, double zRotation) {
     var speeds = DifferentialDrive.arcadeDriveIK(xSpeed, zRotation, true);
-    leftController.setReference(speeds.left * MAX_SPEED_MPS, ControlType.kVelocity);
-    rightController.setReference(speeds.right * MAX_SPEED_MPS, ControlType.kVelocity);
+    leftController.setSetpoint(speeds.left * MAX_SPEED_MPS, ControlType.kVelocity);
+    rightController.setSetpoint(speeds.right * MAX_SPEED_MPS, ControlType.kVelocity);
   }
 
   public void driveTank(double lSpeed, double rSpeed) {
     var speeds = DifferentialDrive.tankDriveIK(lSpeed, rSpeed, true);
-    leftController.setReference(speeds.left * TANK_SPEED_MODIFIER, ControlType.kDutyCycle);
-    rightController.setReference(speeds.right * TANK_SPEED_MODIFIER, ControlType.kDutyCycle);
+    leftController.setSetpoint(speeds.left * TANK_SPEED_MODIFIER, ControlType.kDutyCycle);
+    rightController.setSetpoint(speeds.right * TANK_SPEED_MODIFIER, ControlType.kDutyCycle);
   }
 
   // Direct duty cycle spin - bypasses speed modifiers for reliable in-place rotation
   public void spinInPlace(double speed) {
-    leftController.setReference(speed, ControlType.kDutyCycle);
-    rightController.setReference(-speed, ControlType.kDutyCycle);
+    leftController.setSetpoint(speed, ControlType.kDutyCycle);
+    rightController.setSetpoint(-speed, ControlType.kDutyCycle);
   }
 
   // Cheesy Drive (Curvature Drive) - provides car-like steering
@@ -351,8 +351,8 @@ public class CANDriveSubsystem extends SubsystemBase {
   // allowTurnInPlace enables quick turning when stationary or moving slowly
   public void driveCurvature(double xSpeed, double zRotation, boolean allowTurnInPlace) {
     var speeds = DifferentialDrive.curvatureDriveIK(xSpeed, zRotation, allowTurnInPlace);
-    leftController.setReference(speeds.left * TANK_SPEED_MODIFIER, ControlType.kDutyCycle);
-    rightController.setReference(speeds.right * TANK_SPEED_MODIFIER, ControlType.kDutyCycle);
+    leftController.setSetpoint(speeds.left * TANK_SPEED_MODIFIER, ControlType.kDutyCycle);
+    rightController.setSetpoint(speeds.right * TANK_SPEED_MODIFIER, ControlType.kDutyCycle);
   }
 
 

@@ -53,7 +53,7 @@ public class TurnToAngle extends Command {
     driveSubsystem.driveArcade(0, output);
 
     SmartDashboard.putNumber("TurnToAngle/Current", currentAngle);
-    SmartDashboard.putNumber("TurnToAngle/Error", pidController.getPositionError());
+    SmartDashboard.putNumber("TurnToAngle/Error", pidController.getSetpoint() - currentAngle);
   }
 
   @Override
