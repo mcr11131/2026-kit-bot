@@ -58,9 +58,9 @@ public final class Constants {
     public static final int FEEDER_MOTOR_ID = 17;
     public static final int INTAKE_LAUNCHER_MOTOR_ID = 15;
 
-    // Current limit for fuel mechanism motors
-    public static final int FEEDER_MOTOR_CURRENT_LIMIT = 60;
-    public static final int LAUNCHER_MOTOR_CURRENT_LIMIT = 60;
+    // Current limit for fuel mechanism motors (NEOs — 40A protects windings)
+    public static final int FEEDER_MOTOR_CURRENT_LIMIT = 40;
+    public static final int LAUNCHER_MOTOR_CURRENT_LIMIT = 40;
 
     // Speed values for various fuel operations (percentage -1.0 to 1.0)
     // These values can be tuned via SmartDashboard during testing
@@ -85,9 +85,9 @@ public final class Constants {
     public static final int CLIMBER_ONE = 14;
     public static final int CLIMBER_TWO = 16;
 
-    // Current limit and nominal voltage for fuel mechanism motors.
-    public static final int CLIMBER_ONE_CURRENT_LIMIT = 60;
-    public static final int CLIMBER_TWO_CURRENT_LIMIT = 60;
+    // Current limit for climber motors (NEOs — 40A protects windings)
+    public static final int CLIMBER_ONE_CURRENT_LIMIT = 40;
+    public static final int CLIMBER_TWO_CURRENT_LIMIT = 40;
 
     //Climber voltage
     public static final double CLIMBER_DOWN_SPEED = -0.2;
