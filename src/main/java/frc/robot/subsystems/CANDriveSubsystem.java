@@ -139,7 +139,15 @@ public class CANDriveSubsystem extends SubsystemBase {
     rightEncoder = rightLeader.getEncoder();
 
     // Initialize NavX gyro (SPI on MXP port)
-    navx = new AHRS(AHRS.NavXComType.kMXP_SPI);
+    // Wrapped in try-catch so robot still works if NavX isn't connected
+    AHRS tempNavx = null;
+    try {
+      tempNavx = new AHRS(AHRS.NavXComType.kMXP_SPI);
+      System.out.println("[Drive] NavX initialized successfully");
+    } catch (Exception e) {
+      System.err.println("[Drive] WARNING: NavX failed to initialize - running without gyro: " + e.getMessage());
+    }
+    navx = tempNavx;
 
     // Initialize data logging
     var log = DataLogManager.getLog();
@@ -221,44 +229,55 @@ public class CANDriveSubsystem extends SubsystemBase {
     rightPositionLog.append(rightPosition);
     batteryVoltageLog.append(batteryVoltage);
 
-    // NavX gyro data — real-time dashboard
-    double yaw = navx.getYaw();
-    double pitch = navx.getPitch();
-    double roll = navx.getRoll();
-    double accelX = navx.getWorldLinearAccelX();
-    double accelY = navx.getWorldLinearAccelY();
-    double angle = navx.getAngle();
-    double rate = navx.getRate();
+    // NavX gyro data — real-time dashboard (guarded in case NavX isn't connected)
+    if (navx != null) {
+      double yaw = navx.getYaw();
+      double pitch = navx.getPitch();
+      double roll = navx.getRoll();
+      double accelX = navx.getWorldLinearAccelX();
+      double accelY = navx.getWorldLinearAccelY();
+      double angle = navx.getAngle();
+      double rate = navx.getRate();
 
-    SmartDashboard.putNumber("NavX/Yaw", yaw);
-    SmartDashboard.putNumber("NavX/Pitch", pitch);
-    SmartDashboard.putNumber("NavX/Roll", roll);
-    SmartDashboard.putNumber("NavX/Accel X", accelX);
-    SmartDashboard.putNumber("NavX/Accel Y", accelY);
-    SmartDashboard.putNumber("NavX/Angle (continuous)", angle);
-    SmartDashboard.putNumber("NavX/Turn Rate (deg/s)", rate);
-    SmartDashboard.putBoolean("NavX/Connected", navx.isConnected());
-    SmartDashboard.putBoolean("NavX/Calibrating", navx.isCalibrating());
+      SmartDashboard.putNumber("NavX/Yaw", yaw);
+      SmartDashboard.putNumber("NavX/Pitch", pitch);
+      SmartDashboard.putNumber("NavX/Roll", roll);
+      SmartDashboard.putNumber("NavX/Accel X", accelX);
+      SmartDashboard.putNumber("NavX/Accel Y", accelY);
+      SmartDashboard.putNumber("NavX/Angle (continuous)", angle);
+      SmartDashboard.putNumber("NavX/Turn Rate (deg/s)", rate);
+      SmartDashboard.putBoolean("NavX/Connected", navx.isConnected());
+      SmartDashboard.putBoolean("NavX/Calibrating", navx.isCalibrating());
 
-    // Limelight data — always visible on dashboard
-    SmartDashboard.putBoolean("Limelight/Target Valid", LimelightHelpers.getTV(LIMELIGHT_NAME));
-    SmartDashboard.putNumber("Limelight/TX", LimelightHelpers.getTX(LIMELIGHT_NAME));
-    SmartDashboard.putNumber("Limelight/TY", LimelightHelpers.getTY(LIMELIGHT_NAME));
-    SmartDashboard.putNumber("Limelight/Tag ID", LimelightHelpers.getFiducialID(LIMELIGHT_NAME));
-    SmartDashboard.putNumber("Limelight/TA (area)", LimelightHelpers.getTA(LIMELIGHT_NAME));
-    double[] pose = LimelightHelpers.getTargetPose_CameraSpace(LIMELIGHT_NAME);
-    if (pose.length >= 3) {
-      SmartDashboard.putNumber("Limelight/Distance (ft)", pose[2] * 3.28084);
+    } else {
+      SmartDashboard.putBoolean("NavX/Connected", false);
     }
 
-    // NavX data log files for post-match analysis
-    navxYawLog.append(yaw);
-    navxPitchLog.append(pitch);
-    navxRollLog.append(roll);
-    navxAccelXLog.append(accelX);
-    navxAccelYLog.append(accelY);
-    navxAngleLog.append(angle);
-    navxRateLog.append(rate);
+    // Limelight data — always visible on dashboard (guarded against network errors)
+    try {
+      SmartDashboard.putBoolean("Limelight/Target Valid", LimelightHelpers.getTV(LIMELIGHT_NAME));
+      SmartDashboard.putNumber("Limelight/TX", LimelightHelpers.getTX(LIMELIGHT_NAME));
+      SmartDashboard.putNumber("Limelight/TY", LimelightHelpers.getTY(LIMELIGHT_NAME));
+      SmartDashboard.putNumber("Limelight/Tag ID", LimelightHelpers.getFiducialID(LIMELIGHT_NAME));
+      SmartDashboard.putNumber("Limelight/TA (area)", LimelightHelpers.getTA(LIMELIGHT_NAME));
+      double[] pose = LimelightHelpers.getTargetPose_CameraSpace(LIMELIGHT_NAME);
+      if (pose.length >= 3) {
+        SmartDashboard.putNumber("Limelight/Distance (ft)", pose[2] * 3.28084);
+      }
+    } catch (Exception e) {
+      // Limelight not available — don't crash the robot
+    }
+
+    // NavX data log files for post-match analysis (only if NavX is available)
+    if (navx != null) {
+      navxYawLog.append(navx.getYaw());
+      navxPitchLog.append(navx.getPitch());
+      navxRollLog.append(navx.getRoll());
+      navxAccelXLog.append(navx.getWorldLinearAccelX());
+      navxAccelYLog.append(navx.getWorldLinearAccelY());
+      navxAngleLog.append(navx.getAngle());
+      navxRateLog.append(navx.getRate());
+    }
   }
 
   @Override
@@ -302,11 +321,11 @@ public class CANDriveSubsystem extends SubsystemBase {
   }
 
   public double getHeading() {
-    return navx.getYaw();
+    return navx != null ? navx.getYaw() : 0.0;
   }
 
   public void resetHeading() {
-    navx.reset();
+    if (navx != null) navx.reset();
   }
 
   public void driveArcade(double xSpeed, double zRotation) {
