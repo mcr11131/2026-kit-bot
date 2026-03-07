@@ -26,6 +26,7 @@ import static frc.robot.Constants.SimConstants.*;
 public class CANFuelSubsystem extends SubsystemBase {
   private final SparkMax feederRoller;
   private final SparkMax intakeLauncherRoller;
+  private final SparkMax intakeRoller;
 
   // Data logging entries
   private final DoubleLogEntry launcherCurrentLog;
@@ -46,6 +47,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     // create brushless motors for each of the motors on the launcher mechanism
     intakeLauncherRoller = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
     feederRoller = new SparkMax(FEEDER_MOTOR_ID, MotorType.kBrushless);
+    intakeRoller = new SparkMax(INTAKE_MOTOR_ID, MotorType.kBrushless);
 
     // create the configuration for the feeder roller, set a current limit and apply
     // the config to the controller
@@ -60,6 +62,11 @@ public class CANFuelSubsystem extends SubsystemBase {
     launcherConfig.inverted(true);
     launcherConfig.smartCurrentLimit(LAUNCHER_MOTOR_CURRENT_LIMIT);
     intakeLauncherRoller.configure(launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+
+    //Intake configuring, including current limit and safe reset parameters...
+    SparkMaxConfig intakeConfig = new SparkMaxConfig();
+    intakeConfig.smartCurrentLimit(INTAKE_MOTOR_CURRENT_LIMIT);
+    intakeRoller.configure(intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     // put default speed values for various fuel operations onto the dashboard
     // all commands using this subsystem pull values from the dashboard to allow
@@ -100,12 +107,18 @@ public class CANFuelSubsystem extends SubsystemBase {
   // A method to set the speed (percentage) of the feeder roller
   public void setFeederRoller(double speed) {
     feederRoller.set(speed);
+  } 
+  
+  // A method to set the speed (percentage) of the intake roller
+  public void setIntakeRoller(double speed) {
+    intakeRoller.set(speed);
   }
 
   // A method to stop the rollers
   public void stop() {
     feederRoller.set(0);
     intakeLauncherRoller.set(0);
+    intakeRoller.set(0);
   }
 
   @Override

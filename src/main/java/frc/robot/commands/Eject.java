@@ -30,6 +30,7 @@ public class Eject extends Command {
              SmartDashboard.getNumber("Eject launcher speed", EJECT_LAUNCHER_SPEED));
     fuelSubsystem
         .setFeederRoller(SmartDashboard.getNumber("Eject feeder speed", EJECT_FEEDER_SPEED));
+    fuelSubsystem.setIntakeRoller(EJECT_INTAKE_SPEED);
   }
 
   // Called every time the scheduler runs while the command is scheduled. This
@@ -43,6 +44,7 @@ public class Eject extends Command {
   public void end(boolean interrupted) {
     fuelSubsystem.setIntakeLauncherRoller(0);
     fuelSubsystem.setFeederRoller(0);
+    fuelSubsystem.setIntakeRoller(0);
   }
 
   // Returns true when the command should end.

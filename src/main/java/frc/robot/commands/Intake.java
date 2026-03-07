@@ -28,6 +28,7 @@ public class Intake extends Command {
     fuelSubsystem
         .setIntakeLauncherRoller(SmartDashboard.getNumber("Intaking launcher speed", INTAKING_LAUNCHER_SPEED));
     fuelSubsystem.setFeederRoller(SmartDashboard.getNumber("Intaking feeder speed", INTAKING_FEEDER_SPEED));
+    fuelSubsystem.setIntakeRoller(INTAKING_INTAKE_SPEED);
   }
 
   // Called every time the scheduler runs while the command is scheduled. This
@@ -41,6 +42,7 @@ public class Intake extends Command {
   public void end(boolean interrupted) {
     fuelSubsystem.setIntakeLauncherRoller(0);
     fuelSubsystem.setFeederRoller(0);
+    fuelSubsystem.setIntakeRoller(0);
   }
 
   // Returns true when the command should end.
