@@ -69,18 +69,18 @@ public final class Constants {
     // These values can be tuned via SmartDashboard during testing
     public static final double INTAKING_FEEDER_SPEED = 0.6;     // Feeder pulls balls in - 60% power
     public static final double INTAKING_LAUNCHER_SPEED = 0.25;  // Launcher pulls balls in (reversed)
-    public static final int INTAKING_INTAKE_SPEED = 1;
+    public static final double INTAKING_INTAKE_SPEED = 1.0;
 
     public static final double LAUNCHING_FEEDER_SPEED = 1.0;    // Feeder pushes balls out
     public static final double LAUNCHING_LAUNCHER_SPEED = 1.0;  // Launcher shoots balls
-    public static final int LAUNCHING_INTAKE_SPEED = 1;
+    public static final double LAUNCHING_INTAKE_SPEED = 1.0;
 
     public static final double SPIN_UP_FEEDER_SPEED = 1.0;      // Feeder feeds forward during spin-up
     public static final double SPIN_UP_SECONDS = 1;
 
     public static final double EJECT_FEEDER_SPEED = -1.0;       // Feeder pushes balls backward
     public static final double EJECT_LAUNCHER_SPEED = 1.0;      // Launcher ejects balls
-    public static final int EJECT_INTAKE_SPEED = 1;
+    public static final double EJECT_INTAKE_SPEED = -1.0;
 
     //General climb speed
     public static final double speed = 1;
