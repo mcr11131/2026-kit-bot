@@ -31,7 +31,7 @@ public final class Constants {
     public static final double DRIVE_KP = 0.1;
 
     //max speed percent for tank control mode (0 to 1)
-    public static final double TANK_SPEED_MODIFIER = 0.5;
+    public static final double TANK_SPEED_MODIFIER = 1;//tank speed now at 1, will change if browning out.
 
     // Proportional gain for encoder-based heading correction when driving straight.
     // Increase if the robot still drifts, decrease if it oscillates.
@@ -55,33 +55,32 @@ public final class Constants {
 
   public static final class FuelConstants {
     // Motor controller IDs for Fuel Mechanism motors
-    public static final int FEEDER_MOTOR_ID = 17;
-    public static final int INTAKE_LAUNCHER_MOTOR_ID = 15;
+    public static final int FLYWHEEL_MOTOR_ID = 17;
+    public static final int AUGER_MOTOR_ID = 15;
     public static final int INTAKE_MOTOR_ID = 18;
 
     // Current limit for fuel mechanism motors (NEOs — 40A protects windings)
-    public static final int FEEDER_MOTOR_CURRENT_LIMIT = 40;
-    public static final int LAUNCHER_MOTOR_CURRENT_LIMIT = 40;
+    public static final int FLYWHEEL_MOTOR_CURRENT_LIMIT = 40;
+    public static final int AUGER_MOTOR_CURRENT_LIMIT = 40;
     public static final int INTAKE_MOTOR_CURRENT_LIMIT = 40;
 
 
     // Speed values for various fuel operations (percentage -1.0 to 1.0)
     // These values can be tuned via SmartDashboard during testing
-    //flywheel
-    public static final double INTAKING_FEEDER_SPEED = -0.25;     // Feeder pulls balls in - 60% power
-    //auger
-    public static final double INTAKING_LAUNCHER_SPEED = -1;  // Launcher pulls balls in (reversed)
+    //INTAKE
+    public static final double INTAKING_FLYWHEEL_SPEED = -0.25;     // Feeder pulls balls in - 60% power
+    public static final double INTAKING_AUGER_SPEED = -1;  // Launcher pulls balls in (reversed)
     public static final double INTAKING_INTAKE_SPEED = -0.8;
-
-    public static final double LAUNCHING_FEEDER_SPEED = 0.8;    // Feeder pushes balls out
-    public static final double LAUNCHING_LAUNCHER_SPEED = 1.0;  // Launcher shoots balls
+    //LAUNCH
+    public static final double LAUNCHING_FLYWHEEL_SPEED = 0.8;    // Feeder pushes balls out
+    public static final double LAUNCHING_AUGER_SPEED = 1.0;  // Launcher shoots balls
     public static final double LAUNCHING_INTAKE_SPEED = -1.0;
-
-    public static final double SPIN_UP_FEEDER_SPEED = 1.0;      // Feeder feeds forward during spin-up
+    //SPIN UP
+    public static final double SPIN_UP_FLYWHEEL_SPEED = 1.0;      // Feeder feeds forward during spin-up
     public static final double SPIN_UP_SECONDS = 1;
-
-    public static final double EJECT_FEEDER_SPEED = -1.0;       // Feeder pushes balls backward
-    public static final double EJECT_LAUNCHER_SPEED = 1.0;      // Launcher ejects balls
+    //EJECT
+    public static final double EJECT_FLYWHEEL_SPEED = -1.0;       // Feeder pushes balls backward
+    public static final double EJECT_AUGER_SPEED = 1.0;      // Launcher ejects balls
     public static final double EJECT_INTAKE_SPEED = 1.0;
 
     //General climb speed

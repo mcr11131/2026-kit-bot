@@ -45,14 +45,14 @@ public class CANFuelSubsystem extends SubsystemBase {
   /** Creates a new CANBallSubsystem. */
   public CANFuelSubsystem() {
     // create brushless motors for each of the motors on the launcher mechanism
-    intakeLauncherRoller = new SparkMax(INTAKE_LAUNCHER_MOTOR_ID, MotorType.kBrushless);
-    feederRoller = new SparkMax(FEEDER_MOTOR_ID, MotorType.kBrushless);
+    intakeLauncherRoller = new SparkMax(AUGER_MOTOR_ID, MotorType.kBrushless);
+    feederRoller = new SparkMax(FLYWHEEL_MOTOR_ID, MotorType.kBrushless);
     intakeRoller = new SparkMax(INTAKE_MOTOR_ID, MotorType.kBrushless);
 
     // create the configuration for the feeder roller, set a current limit and apply
     // the config to the controller
     SparkMaxConfig feederConfig = new SparkMaxConfig();
-    feederConfig.smartCurrentLimit(FEEDER_MOTOR_CURRENT_LIMIT);
+    feederConfig.smartCurrentLimit(FLYWHEEL_MOTOR_CURRENT_LIMIT);
     feederRoller.configure(feederConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     // create the configuration for the launcher roller, set a current limit, set
@@ -60,7 +60,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     // launching, and apply the config to the controller
     SparkMaxConfig launcherConfig = new SparkMaxConfig();
     launcherConfig.inverted(true);
-    launcherConfig.smartCurrentLimit(LAUNCHER_MOTOR_CURRENT_LIMIT);
+    launcherConfig.smartCurrentLimit(AUGER_MOTOR_CURRENT_LIMIT);
     intakeLauncherRoller.configure(launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     //Intake configuring, including current limit and safe reset parameters...
@@ -72,13 +72,13 @@ public class CANFuelSubsystem extends SubsystemBase {
     // all commands using this subsystem pull values from the dashboard to allow
     // you to tune the values easily, and then replace the values in Constants.java
     // with your new values. For more information, see the Software Guide.
-    SmartDashboard.putNumber("Intaking feeder speed", INTAKING_FEEDER_SPEED);
-    SmartDashboard.putNumber("Intaking launcher speed", INTAKING_LAUNCHER_SPEED);
-    SmartDashboard.putNumber("Launching feeder speed", LAUNCHING_FEEDER_SPEED);
-    SmartDashboard.putNumber("Launching launcher speed", LAUNCHING_LAUNCHER_SPEED);
-    SmartDashboard.putNumber("Spin-up feeder speed", SPIN_UP_FEEDER_SPEED);
-    SmartDashboard.putNumber("Eject feeder speed", EJECT_FEEDER_SPEED);
-    SmartDashboard.putNumber("Eject launcher speed", EJECT_LAUNCHER_SPEED);
+    SmartDashboard.putNumber("Intaking feeder speed", INTAKING_FLYWHEEL_SPEED);
+    SmartDashboard.putNumber("Intaking launcher speed", INTAKING_AUGER_SPEED);
+    SmartDashboard.putNumber("Launching feeder speed", LAUNCHING_FLYWHEEL_SPEED);
+    SmartDashboard.putNumber("Launching launcher speed", LAUNCHING_AUGER_SPEED);
+    SmartDashboard.putNumber("Spin-up feeder speed", SPIN_UP_FLYWHEEL_SPEED);
+    SmartDashboard.putNumber("Eject feeder speed", EJECT_FLYWHEEL_SPEED);
+    SmartDashboard.putNumber("Eject launcher speed", EJECT_AUGER_SPEED);
 
     // Initialize data logging
     var log = DataLogManager.getLog();

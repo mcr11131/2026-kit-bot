@@ -154,9 +154,9 @@ public class AlignToScore extends Command {
           spinUpTimer.restart();
           // Spin up launcher, feeder stays off
           fuelSubsystem.setIntakeLauncherRoller(
-              SmartDashboard.getNumber("Launching launcher speed", LAUNCHING_LAUNCHER_SPEED));
+              SmartDashboard.getNumber("Launching launcher speed", LAUNCHING_AUGER_SPEED));
           fuelSubsystem.setFeederRoller(
-              SmartDashboard.getNumber("Spin-up feeder speed", SPIN_UP_FEEDER_SPEED));
+              SmartDashboard.getNumber("Spin-up feeder speed", SPIN_UP_FLYWHEEL_SPEED));
           SmartDashboard.putString("Align/Status", "Spinning up...");
         } else if (!aimed && !atDistance) {
           SmartDashboard.putString("Align/Status", "Aiming + Driving...");
@@ -179,9 +179,9 @@ public class AlignToScore extends Command {
         if (spinUpTimer.hasElapsed(SPIN_UP_SECONDS)) {
           launchState = LaunchState.LAUNCHING;
           fuelSubsystem.setIntakeLauncherRoller(
-              SmartDashboard.getNumber("Launching launcher speed", LAUNCHING_LAUNCHER_SPEED));
+              SmartDashboard.getNumber("Launching launcher speed", LAUNCHING_AUGER_SPEED));
           fuelSubsystem.setFeederRoller(
-              SmartDashboard.getNumber("Launching feeder speed", LAUNCHING_FEEDER_SPEED));
+              SmartDashboard.getNumber("Launching feeder speed", LAUNCHING_FLYWHEEL_SPEED));
           SmartDashboard.putString("Align/Status", "LAUNCHING!");
         } else {
           SmartDashboard.putString("Align/Status", "Spinning up...");

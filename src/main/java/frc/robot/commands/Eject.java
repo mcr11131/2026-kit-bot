@@ -27,9 +27,9 @@ public class Eject extends Command {
   public void initialize() {
     fuelSubsystem
         .setIntakeLauncherRoller(
-             SmartDashboard.getNumber("Eject launcher speed", EJECT_LAUNCHER_SPEED));
+             SmartDashboard.getNumber("Eject launcher speed", EJECT_AUGER_SPEED));
     fuelSubsystem
-        .setFeederRoller(SmartDashboard.getNumber("Eject feeder speed", EJECT_FEEDER_SPEED));
+        .setFeederRoller(SmartDashboard.getNumber("Eject feeder speed", EJECT_FLYWHEEL_SPEED));
     fuelSubsystem.setIntakeRoller(EJECT_INTAKE_SPEED);
   }
 

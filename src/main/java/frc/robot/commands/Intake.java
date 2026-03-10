@@ -26,8 +26,8 @@ public class Intake extends Command {
   @Override
   public void initialize() {
     fuelSubsystem
-        .setIntakeLauncherRoller(SmartDashboard.getNumber("Intaking launcher speed", INTAKING_LAUNCHER_SPEED));
-    fuelSubsystem.setFeederRoller(SmartDashboard.getNumber("Intaking feeder speed", INTAKING_FEEDER_SPEED));
+        .setIntakeLauncherRoller(SmartDashboard.getNumber("Intaking launcher speed", INTAKING_AUGER_SPEED));
+    fuelSubsystem.setFeederRoller(SmartDashboard.getNumber("Intaking feeder speed", INTAKING_FLYWHEEL_SPEED));
     fuelSubsystem.setIntakeRoller(INTAKING_INTAKE_SPEED);
   }
 
