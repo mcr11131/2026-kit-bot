@@ -29,7 +29,7 @@ public class Launch extends Command {
         .setIntakeLauncherRoller(
            SmartDashboard.getNumber("Launching launcher speed", LAUNCHING_LAUNCHER_SPEED));
     fuelSubsystem.setFeederRoller(SmartDashboard.getNumber("Launching feeder speed", LAUNCHING_FEEDER_SPEED));
-    fuelSubsystem.setIntakeRoller(LAUNCHING_LAUNCHER_SPEED);
+    fuelSubsystem.setIntakeRoller(LAUNCHING_INTAKE_SPEED);
   }
 
   // Called every time the scheduler runs while the command is scheduled. This
