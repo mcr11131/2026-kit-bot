@@ -13,6 +13,7 @@ import com.revrobotics.spark.SparkClosedLoopController;
 import com.revrobotics.spark.SparkLowLevel.MotorType;
 import com.revrobotics.spark.SparkMax;
 import com.revrobotics.spark.FeedbackSensor;
+import com.revrobotics.spark.config.SparkBaseConfig.IdleMode;
 import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.sim.SparkMaxSim;
 
@@ -108,6 +109,7 @@ public class CANDriveSubsystem extends SubsystemBase {
     // Configure leaders first
     SparkMaxConfig leaderConfig = new SparkMaxConfig();
     leaderConfig.voltageCompensation(12);
+    leaderConfig.idleMode(IdleMode.kBrake);
     leaderConfig.smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
     leaderConfig.secondaryCurrentLimit(DRIVE_MOTOR_SECONDARY_CURRENT_LIMIT);
     leaderConfig.closedLoopRampRate(DRIVE_OPEN_LOOP_RAMP_RATE);

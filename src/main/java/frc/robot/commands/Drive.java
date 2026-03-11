@@ -8,6 +8,7 @@ import static frc.robot.Constants.OperatorConstants.*;
 
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.filter.SlewRateLimiter;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CANDriveSubsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
@@ -19,8 +20,9 @@ public class Drive extends Command {
   CommandGenericHID controller;
   boolean cameraFront = true;
   boolean toggleLock = false;
-  private final SlewRateLimiter throttleLimiter = new SlewRateLimiter(THROTTLE_SLEW_RATE);
   private final SlewRateLimiter turnLimiter = new SlewRateLimiter(TURN_SLEW_RATE);
+  private double limitedThrottle = 0.0;
+  private double lastThrottleTimestamp = 0.0;
 
   public Drive(CANDriveSubsystem driveSystem, CommandGenericHID driverController) {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -32,8 +34,9 @@ public class Drive extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
-    throttleLimiter.reset(0.0);
     turnLimiter.reset(0.0);
+    limitedThrottle = 0.0;
+    lastThrottleTimestamp = Timer.getFPGATimestamp();
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -44,7 +47,7 @@ public class Drive extends Command {
   @Override
   public void execute() {
     // Get throttle from left stick Y-axis (inverted: pushing forward is negative on axis)
-    double throttle = throttleLimiter.calculate(
+    double throttle = applyThrottleAccelLimit(
         -MathUtil.applyDeadband(controller.getRawAxis(1), DRIVE_DEADBAND) * DRIVE_SCALING);
     // Get turn rate from right stick X-axis (inverted so right stick right = turn right)
     double turn = turnLimiter.calculate(
@@ -87,8 +90,8 @@ public class Drive extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
-    throttleLimiter.reset(0.0);
     turnLimiter.reset(0.0);
+    limitedThrottle = 0.0;
     driveSubsystem.driveArcade(0, 0);
   }
 
@@ -96,5 +99,37 @@ public class Drive extends Command {
   @Override
   public boolean isFinished() {
     return false;
+  }
+
+  private double applyThrottleAccelLimit(double requestedThrottle) {
+    double now = Timer.getFPGATimestamp();
+    double dt = now - lastThrottleTimestamp;
+    lastThrottleTimestamp = now;
+
+    if (dt <= 0.0) {
+      dt = 0.02;
+    }
+
+    // Allow instantaneous decel to zero, but do not immediately accelerate through zero
+    // into the opposite direction.
+    if (Math.signum(requestedThrottle) != Math.signum(limitedThrottle)
+        && Math.abs(requestedThrottle) > 1e-3
+        && Math.abs(limitedThrottle) > 1e-3) {
+      limitedThrottle = 0.0;
+      return limitedThrottle;
+    }
+
+    // Only limit increases in commanded speed magnitude.
+    if (Math.abs(requestedThrottle) > Math.abs(limitedThrottle)) {
+      double maxDelta = THROTTLE_ACCEL_SLEW_RATE * dt;
+      limitedThrottle = MathUtil.clamp(
+          requestedThrottle,
+          limitedThrottle - maxDelta,
+          limitedThrottle + maxDelta);
+    } else {
+      limitedThrottle = requestedThrottle;
+    }
+
+    return limitedThrottle;
   }
 }

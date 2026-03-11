@@ -43,8 +43,9 @@ public final class Constants {
     public static final double MAX_TURN_SPEED = 0.6;
     public static final double MIN_TURN_SPEED = 0.08;
 
-    // Ramp rate in seconds from 0 to full throttle. Reduces current spikes and smooths acceleration.
-    public static final double DRIVE_OPEN_LOOP_RAMP_RATE = 0.4;
+    // Command-layer throttle limiting handles acceleration; keep motor controller ramping off
+    // so the robot can decelerate immediately.
+    public static final double DRIVE_OPEN_LOOP_RAMP_RATE = 0.0;
     public static final double DRIVE_BROWNOUT_RECOVERY_VOLTAGE = 9.5;
     public static final double DRIVE_BROWNOUT_MIN_VOLTAGE = 7.5;
     public static final double DRIVE_BROWNOUT_MIN_SCALE = 0.45;
@@ -127,7 +128,7 @@ public final class Constants {
     public static final double ROTATION_SCALING = 1;
     public static final double DRIVE_DEADBAND = 0.15;
     public static final double TURN_DEADBAND = 0.15;
-    public static final double THROTTLE_SLEW_RATE = 1.5;
+    public static final double THROTTLE_ACCEL_SLEW_RATE = 1.5;
     public static final double TURN_SLEW_RATE = 3.0;
   }
 }
