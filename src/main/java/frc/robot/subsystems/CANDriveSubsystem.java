@@ -113,11 +113,10 @@ public class CANDriveSubsystem extends SubsystemBase {
     leaderConfig.closedLoopRampRate(DRIVE_OPEN_LOOP_RAMP_RATE);
     leaderConfig.openLoopRampRate(DRIVE_OPEN_LOOP_RAMP_RATE);
 
-    // Configure encoder conversion factors so readings are in meters and m/s
+    // Configure built-in NEO encoder conversion factors so readings are in meters and m/s
     double positionFactor = (2 * Math.PI * WHEEL_RADIUS_METERS) / DRIVE_GEAR_RATIO;
     double velocityFactor = positionFactor / 60.0;
     leaderConfig.encoder
-        .countsPerRevolution(ENCODER_CPR)
         .positionConversionFactor(positionFactor)
         .velocityConversionFactor(velocityFactor);
 

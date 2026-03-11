@@ -22,9 +22,6 @@ public final class Constants {
     public static final int RIGHT_LEADER_ID = 12;
     public static final int RIGHT_FOLLOWER_ID = 13;
 
-    // Encoder counts per revolution for REV Through Bore Encoder
-    public static final int ENCODER_CPR = 8192;
-
     // CIM free speed 5310 RPM / 8.45 gear ratio × 2π × 0.076m wheel radius / 60
     public static final double MAX_SPEED_MPS = 5.0;
     public static final double DRIVE_KFF = 0.2; // ≈ 1 / MAX_SPEED_MPS

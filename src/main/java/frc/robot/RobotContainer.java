@@ -5,7 +5,6 @@
 package frc.robot;
 
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.Encoder;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
@@ -53,12 +52,6 @@ public class RobotContainer {
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
 
   private final DigitalInput downLimitSwitch = new DigitalInput(0);
-
-
-  //The encoders
-  //Encoders are in 10 and 12
-  //private final Encoder leftEncoder = new Encoder(Constants.DriveConstants.LEFT_LEADER_ID, 10);
-  //private final Encoder rightEncoder = new Encoder(Constants.DriveConstants.RIGHT_LEADER_ID, 12);
 
   /**
    * The container for the robot. Contains subsystems, OI devices, and commands.
