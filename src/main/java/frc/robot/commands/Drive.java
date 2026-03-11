@@ -7,6 +7,7 @@ package frc.robot.commands;
 import static frc.robot.Constants.OperatorConstants.*;
 
 import edu.wpi.first.math.MathUtil;
+import edu.wpi.first.math.filter.SlewRateLimiter;
 import edu.wpi.first.wpilibj2.command.Command;
 import frc.robot.subsystems.CANDriveSubsystem;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
@@ -18,6 +19,8 @@ public class Drive extends Command {
   CommandGenericHID controller;
   boolean cameraFront = true;
   boolean toggleLock = false;
+  private final SlewRateLimiter throttleLimiter = new SlewRateLimiter(THROTTLE_SLEW_RATE);
+  private final SlewRateLimiter turnLimiter = new SlewRateLimiter(TURN_SLEW_RATE);
 
   public Drive(CANDriveSubsystem driveSystem, CommandGenericHID driverController) {
     // Use addRequirements() here to declare subsystem dependencies.
@@ -29,6 +32,8 @@ public class Drive extends Command {
   // Called when the command is initially scheduled.
   @Override
   public void initialize() {
+    throttleLimiter.reset(0.0);
+    turnLimiter.reset(0.0);
   }
 
   // Called every time the scheduler runs while the command is scheduled.
@@ -39,11 +44,11 @@ public class Drive extends Command {
   @Override
   public void execute() {
     // Get throttle from left stick Y-axis (inverted: pushing forward is negative on axis)
-    double throttle = -MathUtil.applyDeadband(controller.getRawAxis(1), 0.15) * DRIVE_SCALING;
-
-
+    double throttle = throttleLimiter.calculate(
+        -MathUtil.applyDeadband(controller.getRawAxis(1), DRIVE_DEADBAND) * DRIVE_SCALING);
     // Get turn rate from right stick X-axis (inverted so right stick right = turn right)
-    double turn = -MathUtil.applyDeadband(controller.getRawAxis(4), 0.15) * ROTATION_SCALING;
+    double turn = turnLimiter.calculate(
+        -MathUtil.applyDeadband(controller.getRawAxis(4), TURN_DEADBAND) * ROTATION_SCALING);
 
     // Quick turn mode enabled when left stick is clicked (button 9)
     boolean quickTurn = controller.button(9).getAsBoolean();
@@ -54,7 +59,7 @@ public class Drive extends Command {
     }
 
     // If no throttle but steering input, spin in place at 25% power
-    if (throttle == 0 && turn != 0) {
+    if (Math.abs(throttle) < 1e-3 && Math.abs(turn) > 1e-3) {
       driveSubsystem.spinInPlace(-0.3 * Math.signum(turn));
       return;
     }
@@ -82,6 +87,8 @@ public class Drive extends Command {
   // Called once the command ends or is interrupted.
   @Override
   public void end(boolean interrupted) {
+    throttleLimiter.reset(0.0);
+    turnLimiter.reset(0.0);
     driveSubsystem.driveArcade(0, 0);
   }
 

@@ -17,9 +17,12 @@ import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.sim.SparkMaxSim;
 
 import com.studica.frc.AHRS;
+import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.system.plant.DCMotor;
+import edu.wpi.first.util.datalog.BooleanLogEntry;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotController;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
@@ -55,6 +58,11 @@ public class CANDriveSubsystem extends SubsystemBase {
   private final DoubleLogEntry leftPositionLog;
   private final DoubleLogEntry rightPositionLog;
   private final DoubleLogEntry batteryVoltageLog;
+  private final DoubleLogEntry driveScaleLog;
+  private final DoubleLogEntry totalCurrentLog;
+  private final DoubleLogEntry powerDistributionVoltageLog;
+  private final DoubleLogEntry totalPowerLog;
+  private final BooleanLogEntry brownoutActiveLog;
 
   // NavX data logging entries
   private final DoubleLogEntry navxYawLog;
@@ -67,6 +75,7 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   // NavX Gyro
   private final AHRS navx;
+  private final PowerDistribution powerDistribution;
 
   // Simulation support
   private SparkMaxSim leftLeaderSim;
@@ -76,7 +85,7 @@ public class CANDriveSubsystem extends SubsystemBase {
   private DifferentialDrivetrainSim drivetrainSim;
 
   public CANDriveSubsystem() {
-    // create brushed motors for drive
+    // Create brushless drivetrain motors
     leftLeader = new SparkMax(LEFT_LEADER_ID, MotorType.kBrushless);
     leftFollower = new SparkMax(LEFT_FOLLOWER_ID, MotorType.kBrushless);
     rightLeader = new SparkMax(RIGHT_LEADER_ID, MotorType.kBrushless);
@@ -100,6 +109,7 @@ public class CANDriveSubsystem extends SubsystemBase {
     SparkMaxConfig leaderConfig = new SparkMaxConfig();
     leaderConfig.voltageCompensation(12);
     leaderConfig.smartCurrentLimit(DRIVE_MOTOR_CURRENT_LIMIT);
+    leaderConfig.secondaryCurrentLimit(DRIVE_MOTOR_SECONDARY_CURRENT_LIMIT);
     leaderConfig.closedLoopRampRate(DRIVE_OPEN_LOOP_RAMP_RATE);
     leaderConfig.openLoopRampRate(DRIVE_OPEN_LOOP_RAMP_RATE);
 
@@ -138,6 +148,11 @@ public class CANDriveSubsystem extends SubsystemBase {
     leftEncoder = leftLeader.getEncoder();
     rightEncoder = rightLeader.getEncoder();
 
+    leftLeader.clearFaults();
+    leftFollower.clearFaults();
+    rightLeader.clearFaults();
+    rightFollower.clearFaults();
+
     // Initialize NavX gyro (SPI on MXP port)
     // Wrapped in try-catch so robot still works if NavX isn't connected
     AHRS tempNavx = null;
@@ -148,6 +163,7 @@ public class CANDriveSubsystem extends SubsystemBase {
       System.err.println("[Drive] WARNING: NavX failed to initialize - running without gyro: " + e.getMessage());
     }
     navx = tempNavx;
+    powerDistribution = new PowerDistribution();
 
     // Initialize data logging
     var log = DataLogManager.getLog();
@@ -162,6 +178,11 @@ public class CANDriveSubsystem extends SubsystemBase {
     leftPositionLog = new DoubleLogEntry(log, "/drive/leftPosition");
     rightPositionLog = new DoubleLogEntry(log, "/drive/rightPosition");
     batteryVoltageLog = new DoubleLogEntry(log, "/drive/batteryVoltage");
+    driveScaleLog = new DoubleLogEntry(log, "/drive/commandScale");
+    totalCurrentLog = new DoubleLogEntry(log, "/power/totalCurrent");
+    powerDistributionVoltageLog = new DoubleLogEntry(log, "/power/distributionVoltage");
+    totalPowerLog = new DoubleLogEntry(log, "/power/totalPower");
+    brownoutActiveLog = new BooleanLogEntry(log, "/power/brownoutActive");
 
     // NavX data log entries
     navxYawLog = new DoubleLogEntry(log, "/navx/yaw");
@@ -173,7 +194,7 @@ public class CANDriveSubsystem extends SubsystemBase {
     navxRateLog = new DoubleLogEntry(log, "/navx/rate");
 
     // Initialize simulation objects for all four motors
-    DCMotor driveMotor = DCMotor.getCIM(2);
+    DCMotor driveMotor = DCMotor.getNEO(2);
     leftLeaderSim = new SparkMaxSim(leftLeader, driveMotor);
     leftFollowerSim = new SparkMaxSim(leftFollower, driveMotor);
     rightLeaderSim = new SparkMaxSim(rightLeader, driveMotor);
@@ -202,6 +223,11 @@ public class CANDriveSubsystem extends SubsystemBase {
     double leftPosition = leftEncoder.getPosition();
     double rightPosition = rightEncoder.getPosition();
     double batteryVoltage = RobotController.getBatteryVoltage();
+    double driveScale = getBrownoutScale();
+    double totalCurrent = powerDistribution.getTotalCurrent();
+    double powerDistributionVoltage = powerDistribution.getVoltage();
+    double totalPower = powerDistributionVoltage * totalCurrent;
+    boolean brownedOut = RobotController.isBrownedOut();
 
     // Log to SmartDashboard for real-time viewing
     SmartDashboard.putNumber("Drive/Left Current", leftCurrent);
@@ -215,6 +241,11 @@ public class CANDriveSubsystem extends SubsystemBase {
     SmartDashboard.putNumber("Drive/Left Position", leftPosition);
     SmartDashboard.putNumber("Drive/Right Position", rightPosition);
     SmartDashboard.putNumber("Drive/Battery Voltage", batteryVoltage);
+    SmartDashboard.putNumber("Drive/Command Scale", driveScale);
+    SmartDashboard.putBoolean("Drive/Brownout Active", brownedOut);
+    SmartDashboard.putNumber("Power/Total Current", totalCurrent);
+    SmartDashboard.putNumber("Power/Distribution Voltage", powerDistributionVoltage);
+    SmartDashboard.putNumber("Power/Total Power", totalPower);
 
     // Log to data log files for post-match analysis
     leftCurrentLog.append(leftCurrent);
@@ -228,6 +259,11 @@ public class CANDriveSubsystem extends SubsystemBase {
     leftPositionLog.append(leftPosition);
     rightPositionLog.append(rightPosition);
     batteryVoltageLog.append(batteryVoltage);
+    driveScaleLog.append(driveScale);
+    totalCurrentLog.append(totalCurrent);
+    powerDistributionVoltageLog.append(powerDistributionVoltage);
+    totalPowerLog.append(totalPower);
+    brownoutActiveLog.append(brownedOut);
 
     // NavX gyro data — real-time dashboard (guarded in case NavX isn't connected)
     if (navx != null) {
@@ -329,32 +365,67 @@ public class CANDriveSubsystem extends SubsystemBase {
   }
 
   public void driveArcade(double xSpeed, double zRotation) {
+    double driveScale = getBrownoutScale();
     var speeds = DifferentialDrive.arcadeDriveIK(xSpeed, zRotation, true);
-    leftController.setSetpoint(speeds.left * MAX_SPEED_MPS, ControlType.kVelocity);
-    rightController.setSetpoint(speeds.right * MAX_SPEED_MPS, ControlType.kVelocity);
+    leftController.setSetpoint(scaleVelocitySetpoint(speeds.left, driveScale), ControlType.kVelocity);
+    rightController.setSetpoint(scaleVelocitySetpoint(speeds.right, driveScale), ControlType.kVelocity);
   }
 
   public void driveTank(double lSpeed, double rSpeed) {
+    double driveScale = getBrownoutScale();
     var speeds = DifferentialDrive.tankDriveIK(lSpeed, rSpeed, true);
-    leftController.setSetpoint(speeds.left * TANK_SPEED_MODIFIER, ControlType.kDutyCycle);
-    rightController.setSetpoint(speeds.right * TANK_SPEED_MODIFIER, ControlType.kDutyCycle);
+    leftController.setSetpoint(scaleDutyCycle(speeds.left, driveScale), ControlType.kDutyCycle);
+    rightController.setSetpoint(scaleDutyCycle(speeds.right, driveScale), ControlType.kDutyCycle);
   }
 
   // Direct duty cycle spin - bypasses speed modifiers for reliable in-place rotation
   public void spinInPlace(double speed) {
-    leftController.setSetpoint(speed, ControlType.kDutyCycle);
-    rightController.setSetpoint(-speed, ControlType.kDutyCycle);
+    double driveScale = getBrownoutScale();
+    leftController.setSetpoint(scaleDirectDutyCycle(speed, driveScale), ControlType.kDutyCycle);
+    rightController.setSetpoint(scaleDirectDutyCycle(-speed, driveScale), ControlType.kDutyCycle);
   }
 
   // Cheesy Drive (Curvature Drive) - provides car-like steering
   // When moving forward, turning is proportional to speed (like steering a car)
   // allowTurnInPlace enables quick turning when stationary or moving slowly
   public void driveCurvature(double xSpeed, double zRotation, boolean allowTurnInPlace) {
+    double driveScale = getBrownoutScale();
     var speeds = DifferentialDrive.curvatureDriveIK(xSpeed, zRotation, allowTurnInPlace);
-    leftController.setSetpoint(speeds.left * TANK_SPEED_MODIFIER, ControlType.kDutyCycle);
-    rightController.setSetpoint(speeds.right * TANK_SPEED_MODIFIER, ControlType.kDutyCycle);
+    leftController.setSetpoint(scaleDutyCycle(speeds.left, driveScale), ControlType.kDutyCycle);
+    rightController.setSetpoint(scaleDutyCycle(speeds.right, driveScale), ControlType.kDutyCycle);
+  }
+
+  private double getBrownoutScale() {
+    if (RobotController.isBrownedOut()) {
+      return DRIVE_BROWNOUT_MIN_SCALE;
+    }
+
+    double normalizedVoltage = MathUtil.clamp(
+        (RobotController.getBatteryVoltage() - DRIVE_BROWNOUT_MIN_VOLTAGE)
+            / (DRIVE_BROWNOUT_RECOVERY_VOLTAGE - DRIVE_BROWNOUT_MIN_VOLTAGE),
+        0.0,
+        1.0);
+    return DRIVE_BROWNOUT_MIN_SCALE
+        + normalizedVoltage * (1.0 - DRIVE_BROWNOUT_MIN_SCALE);
+  }
+
+  private double scaleVelocitySetpoint(double normalizedSpeed, double driveScale) {
+    return normalizedSpeed * MAX_SPEED_MPS * driveScale;
+  }
+
+  private double scaleDutyCycle(double normalizedOutput, double driveScale) {
+    return MathUtil.clamp(
+        normalizedOutput * TANK_SPEED_MODIFIER * driveScale,
+        -TANK_SPEED_MODIFIER,
+        TANK_SPEED_MODIFIER);
+  }
+
+  private double scaleDirectDutyCycle(double requestedOutput, double driveScale) {
+    return MathUtil.clamp(
+        requestedOutput * driveScale,
+        -TANK_SPEED_MODIFIER,
+        TANK_SPEED_MODIFIER);
   }
 
 
 }
-

@@ -30,16 +30,17 @@ public final class Constants {
     public static final double DRIVE_KFF = 0.2; // ≈ 1 / MAX_SPEED_MPS
     public static final double DRIVE_KP = 0.1;
 
-    //max speed percent for tank control mode (0 to 1)
-    public static final double TANK_SPEED_MODIFIER = 1;//tank speed now at 1, will change if browning out.
+    // Max duty-cycle output used for open-loop teleop drive modes.
+    public static final double TANK_SPEED_MODIFIER = 0.6;
 
     // Proportional gain for encoder-based heading correction when driving straight.
     // Increase if the robot still drifts, decrease if it oscillates.
     public static final double STRAIGHT_KP = 1.5;
 
-    // Current limit for drivetrain motors. 60A protects against breaker trips
-    // on 40A breakers while still allowing strong performance.
-    public static final int DRIVE_MOTOR_CURRENT_LIMIT = 60;
+    // Primary current limit for the drivetrain plus a fast secondary clamp for
+    // launch spikes that would otherwise sag the battery.
+    public static final int DRIVE_MOTOR_CURRENT_LIMIT = 45;
+    public static final double DRIVE_MOTOR_SECONDARY_CURRENT_LIMIT = 55.0;
 
     // NavX PID constants for turning commands (TurnToAngle, Spin180)
     public static final double TURN_KP = 0.02;
@@ -50,7 +51,10 @@ public final class Constants {
     public static final double MIN_TURN_SPEED = 0.08;
 
     // Ramp rate in seconds from 0 to full throttle. Reduces current spikes and smooths acceleration.
-    public static final double DRIVE_OPEN_LOOP_RAMP_RATE = 0.3;
+    public static final double DRIVE_OPEN_LOOP_RAMP_RATE = 0.4;
+    public static final double DRIVE_BROWNOUT_RECOVERY_VOLTAGE = 9.5;
+    public static final double DRIVE_BROWNOUT_MIN_VOLTAGE = 7.5;
+    public static final double DRIVE_BROWNOUT_MIN_SCALE = 0.45;
   }
 
   public static final class FuelConstants {
@@ -128,5 +132,9 @@ public final class Constants {
     // help avoid turning too fast and beign difficult to control
     public static final double DRIVE_SCALING = 1;
     public static final double ROTATION_SCALING = 1;
+    public static final double DRIVE_DEADBAND = 0.15;
+    public static final double TURN_DEADBAND = 0.15;
+    public static final double THROTTLE_SLEW_RATE = 1.5;
+    public static final double TURN_SLEW_RATE = 3.0;
   }
 }
