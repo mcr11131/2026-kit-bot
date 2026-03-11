@@ -414,16 +414,16 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   private double scaleDutyCycle(double normalizedOutput, double driveScale) {
     return MathUtil.clamp(
-        normalizedOutput * TANK_SPEED_MODIFIER * driveScale,
-        -TANK_SPEED_MODIFIER,
-        TANK_SPEED_MODIFIER);
+        normalizedOutput * driveScale,
+        -1.0,
+        1.0);
   }
 
   private double scaleDirectDutyCycle(double requestedOutput, double driveScale) {
     return MathUtil.clamp(
         requestedOutput * driveScale,
-        -TANK_SPEED_MODIFIER,
-        TANK_SPEED_MODIFIER);
+        -1.0,
+        1.0);
   }
 
 

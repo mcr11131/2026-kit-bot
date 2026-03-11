@@ -27,9 +27,6 @@ public final class Constants {
     public static final double DRIVE_KFF = 0.2; // ≈ 1 / MAX_SPEED_MPS
     public static final double DRIVE_KP = 0.1;
 
-    // Max duty-cycle output used for open-loop teleop drive modes.
-    public static final double TANK_SPEED_MODIFIER = 0.6;
-
     // Proportional gain for encoder-based heading correction when driving straight.
     // Increase if the robot still drifts, decrease if it oscillates.
     public static final double STRAIGHT_KP = 1.5;
