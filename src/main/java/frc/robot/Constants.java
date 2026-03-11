@@ -37,10 +37,9 @@ public final class Constants {
     // Increase if the robot still drifts, decrease if it oscillates.
     public static final double STRAIGHT_KP = 1.5;
 
-    // Primary current limit for the drivetrain plus a fast secondary clamp for
-    // launch spikes that would otherwise sag the battery.
-    public static final int DRIVE_MOTOR_CURRENT_LIMIT = 45;
-    public static final double DRIVE_MOTOR_SECONDARY_CURRENT_LIMIT = 55.0;
+    // NEO drivetrain motors need a 40A hard cap to avoid overheating the motors.
+    public static final int DRIVE_MOTOR_CURRENT_LIMIT = 40;
+    public static final double DRIVE_MOTOR_SECONDARY_CURRENT_LIMIT = 40.0;
 
     // NavX PID constants for turning commands (TurnToAngle, Spin180)
     public static final double TURN_KP = 0.02;
