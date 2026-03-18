@@ -20,26 +20,26 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.ClimberConstants.*;
 import static frc.robot.Constants.SimConstants.*;
-
+//Climber1 removed
 public class CANClimbSubsystem extends SubsystemBase {
-  private final SparkMax climberOne;
+ // private final SparkMax climberOne;
   private final SparkMax climberTwo;
 
   // Simulation support
-  private SparkMaxSim climber1Sim;
+  //private SparkMaxSim climber1Sim;
   private SparkMaxSim climber2Sim;
 
   // Creates a new CANBallSubsystem.
   public CANClimbSubsystem() {
     // create brushed motors for each of the motors on the launcher mechanism
-    climberOne = new SparkMax(CLIMBER_ONE, MotorType.kBrushless);
+   // climberOne = new SparkMax(CLIMBER_ONE, MotorType.kBrushless);
     climberTwo = new SparkMax(CLIMBER_TWO, MotorType.kBrushless);
 
     // create the configuration for the feeder roller, set a current limit and apply
     // the config to the controller
     SparkMaxConfig climbConfig = new SparkMaxConfig();
     climbConfig.smartCurrentLimit(CLIMBER_ONE_CURRENT_LIMIT);
-    climberOne.configure(climbConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+  //  climberOne.configure(climbConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     climberTwo.configure(climbConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     
     // put default values for various fuel operations onto the dashboard
@@ -54,7 +54,7 @@ public class CANClimbSubsystem extends SubsystemBase {
 
     // Initialize simulation objects
     DCMotor neo = DCMotor.getNEO(1);
-    climber1Sim = new SparkMaxSim(climberOne, neo);
+  //  climber1Sim = new SparkMaxSim(climberOne, neo);
     climber2Sim = new SparkMaxSim(climberTwo, neo);
   }
 
@@ -64,9 +64,9 @@ public class CANClimbSubsystem extends SubsystemBase {
     climberTwo.set(-speed);
   }*/
   
-  public void setLeft(double speed) {
-    climberOne.set(speed);
-  }
+ // public void setLeft(double speed) {
+//    climberOne.set(speed);
+//  }
   public void setRight(double speed) {
     climberTwo.set(speed);
   }
@@ -74,13 +74,13 @@ public class CANClimbSubsystem extends SubsystemBase {
 
   // A method to stop the rollers
   public void stop() {
-    climberOne.set(0);
+  //  climberOne.set(0);
     climberTwo.set(0);
   }
 
-  public void leftstop() {
-    climberOne.set(0);
-  }
+ // public void leftstop() {
+   // climberOne.set(0);
+  //}
   public void rightstop() {
     climberTwo.set(0);
   }

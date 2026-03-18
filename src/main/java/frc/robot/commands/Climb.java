@@ -44,11 +44,11 @@ public class Climb extends Command {
   @Override
   public void execute() {
     if(driverController.povUp().getAsBoolean()) {
-      climbSubsystem.setLeft(CLIMBER_UP_SPEED);
+      climbSubsystem.setRight(CLIMBER_UP_SPEED);
     } else if (driverController.povDown().getAsBoolean()) {
-      climbSubsystem.setLeft(CLIMBER_DOWN_SPEED);
+      climbSubsystem.setRight(CLIMBER_DOWN_SPEED);
     } else {
-      climbSubsystem.leftstop();
+      climbSubsystem.rightstop();
     }
     
     if(driverController.button(1).getAsBoolean()) {
@@ -76,10 +76,10 @@ public class Climb extends Command {
 
 
 /*
-if downleft.pressed
-  run left down
-else if upleft.pressed
-  run left up
+if downRight.pressed
+  run Right down
+else if upRight.pressed
+  run Right up
 else
-  left.Stop
+  Right.Stop
 */
