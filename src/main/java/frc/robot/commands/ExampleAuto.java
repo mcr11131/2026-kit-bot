@@ -4,6 +4,8 @@
 
 package frc.robot.commands;
 
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SequentialCommandGroup;
 import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
@@ -18,7 +20,7 @@ public class ExampleAuto extends SequentialCommandGroup {
     // addCommands(new FooCommand(), new BarCommand());
     addCommands(
     // Drive forward, away from the hub for 1.5 meters using encoder-based distance control
-    new AutoDrive(driveSubsystem, 1, 0, 1.5),
+    new AutoDrive(driveSubsystem, 0.5, 0, 1.5),
     // Spin up the launcher for 1 second and then launch balls for 9 seconds, for a
     // total of 10 seconds
     new Launch(ballSubsystem).withTimeout(10));

@@ -53,9 +53,9 @@ public final class Constants {
 
   public static final class FuelConstants {
     // Motor controller IDs for Fuel Mechanism motors
-    public static final int FLYWHEEL_MOTOR_ID = 17;
+    public static final int FLYWHEEL_MOTOR_ID = 18;
     public static final int AUGER_MOTOR_ID = 15;
-    public static final int INTAKE_MOTOR_ID = 18;
+    public static final int INTAKE_MOTOR_ID = 17;
 
     // Current limit for fuel mechanism motors (NEOs — 40A protects windings)
     public static final int FLYWHEEL_MOTOR_CURRENT_LIMIT = 40;
@@ -67,18 +67,18 @@ public final class Constants {
     // These values can be tuned via SmartDashboard during testing
     //INTAKE
     public static final double INTAKING_FLYWHEEL_SPEED = -0.25;     // Feeder pulls balls in - 60% power
-    public static final double INTAKING_AUGER_SPEED = -1;  // Launcher pulls balls in (reversed)
+    public static final double INTAKING_AUGER_SPEED = 1;  // Launcher pulls balls in (reversed)
     public static final double INTAKING_INTAKE_SPEED = -0.8;
     //LAUNCH
-    public static final double LAUNCHING_FLYWHEEL_SPEED = 0.8;    // Feeder pushes balls out
-    public static final double LAUNCHING_AUGER_SPEED = 1.0;  // Launcher shoots balls
+    public static final double LAUNCHING_FLYWHEEL_SPEED = 1;    // Feeder pushes balls out
+    public static final double LAUNCHING_AUGER_SPEED = -1.0;  // Launcher shoots balls
     public static final double LAUNCHING_INTAKE_SPEED = -1.0;
     //SPIN UP
     public static final double SPIN_UP_FLYWHEEL_SPEED = 1.0;      // Feeder feeds forward during spin-up
     public static final double SPIN_UP_SECONDS = 1;
     //EJECT
-    public static final double EJECT_FLYWHEEL_SPEED = -1.0;       // Feeder pushes balls backward
-    public static final double EJECT_AUGER_SPEED = 1.0;      // Launcher ejects balls
+    public static final double EJECT_FLYWHEEL_SPEED = -0.25;       // Feeder pushes balls backward
+    public static final double EJECT_AUGER_SPEED = -1.0;      // Launcher ejects balls
     public static final double EJECT_INTAKE_SPEED = 1.0;
 
     //General climb speed
@@ -87,7 +87,8 @@ public final class Constants {
 
   public static final class ClimberConstants {
     //Climber Sparks
-    public static final int CLIMBER_ONE = 14;
+    //climber one removed
+    //public static final int CLIMBER_ONE = 14;
     public static final int CLIMBER_TWO = 16;
 
     // Current limit for climber motors (NEOs — 40A protects windings)
@@ -124,8 +125,8 @@ public final class Constants {
 
     // This value is multiplied by the joystick value when rotating the robot to
     // help avoid turning too fast and beign difficult to control
-    public static final double DRIVE_SCALING = 1;
-    public static final double ROTATION_SCALING = 1;
+    public static final double DRIVE_SCALING = 0.6;
+    public static final double ROTATION_SCALING = -1;
     public static final double DRIVE_DEADBAND = 0.15;
     public static final double TURN_DEADBAND = 0.15;
     public static final double THROTTLE_ACCEL_SLEW_RATE = 1.5;
