@@ -6,21 +6,27 @@ package frc.robot;
 
 import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
+import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import static frc.robot.Constants.OperatorConstants.*;
+import static frc.robot.Constants.FuelConstants.*;
 
+import frc.robot.commands.AutoDrive;
 import frc.robot.commands.Climb;
 import frc.robot.commands.Drive;
 import frc.robot.commands.Eject;
 import frc.robot.commands.ExampleAuto;
 import frc.robot.commands.Intake;
+import frc.robot.commands.Launch;
 import frc.robot.commands.LaunchSequence;
 import frc.robot.commands.AlignToScore;
-import frc.robot.commands.Spin180;
+import frc.robot.commands.SpinUp;
 import frc.robot.commands.TrenchAuto;
+import frc.robot.commands.TurnToAngle;
 import frc.robot.subsystems.CANClimbSubsystem;
 import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
@@ -58,13 +64,7 @@ public class RobotContainer {
    */
   public RobotContainer() {
     configureBindings();
-
-    // Set the options to show up in the Dashboard for selecting auto modes. If you
-    // add additional auto modes you can add additional lines here with
-    // autoChooser.addOption
-    autoChooser.setDefaultOption("Fadeaway", new ExampleAuto(driveSubsystem, fuelSubsystem));
-    autoChooser.addOption("Trench Blocker", new TrenchAuto(driveSubsystem));
-
+    configureAutonomousChooser();
   }
 
   /**
@@ -105,13 +105,42 @@ public class RobotContainer {
     climbSubsystem.setDefaultCommand(new Climb(climbSubsystem, false, downLimitSwitch, driverController));
   }
 
+  private void configureAutonomousChooser() {
+    autoChooser.setDefaultOption("Fadeaway", new ExampleAuto(driveSubsystem, fuelSubsystem));
+    autoChooser.addOption("Trench Blocker", new TrenchAuto(driveSubsystem));
+    autoChooser.addOption("Drive Forward", createDriveForwardAuto());
+    autoChooser.addOption("Score And Drive", createScoreAndDriveAuto());
+    autoChooser.addOption("Drive Turn Drive", createDriveTurnDriveAuto());
+
+    SmartDashboard.putData("Auto Mode", autoChooser);
+  }
+
+  private Command createDriveForwardAuto() {
+    return new AutoDrive(driveSubsystem, 0.6, 0.0, 2.0);
+  }
+
+  private Command createScoreAndDriveAuto() {
+    return Commands.sequence(
+        new SpinUp(fuelSubsystem).withTimeout(SPIN_UP_SECONDS),
+        new Launch(fuelSubsystem).withTimeout(2.0),
+        new AutoDrive(driveSubsystem, 0.6, 0.0, 1.5));
+  }
+
+  private Command createDriveTurnDriveAuto() {
+    return Commands.sequence(
+        Commands.runOnce(driveSubsystem::resetHeading, driveSubsystem),
+        new AutoDrive(driveSubsystem, 0.6, 0.0, 1.0),
+        new TurnToAngle(driveSubsystem, 90.0).withTimeout(2.5),
+        new AutoDrive(driveSubsystem, 0.6, 0.0, 1.0));
+  }
+
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
    *
    * @return the command to run in autonomous
    */
   public Command getAutonomousCommand() {
-    // An example command will be run in autonomous
+    // Return the currently selected autonomous routine from the dashboard chooser
     return autoChooser.getSelected();
   }
 }
