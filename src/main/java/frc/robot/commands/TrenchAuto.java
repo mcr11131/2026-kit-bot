@@ -18,6 +18,6 @@ public class TrenchAuto extends SequentialCommandGroup {
   public TrenchAuto(CANDriveSubsystem driveSubsystem) {
     addCommands(
     // Drive forward and block the trench of the opposing team
-    new AutoDrive(driveSubsystem, 1, 0, 7.2));
+    new AutoDrive(driveSubsystem, 0.2, 0, 7.2));
   }
 }

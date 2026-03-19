@@ -106,11 +106,15 @@ public class RobotContainer {
   }
 
   private void configureAutonomousChooser() {
-    autoChooser.setDefaultOption("Fadeaway", new ExampleAuto(driveSubsystem, fuelSubsystem));
+    autoChooser.setDefaultOption("Middle Position", new ExampleAuto(driveSubsystem, fuelSubsystem));
+    autoChooser.addOption("Left Position", createLeftPositionAuto());
+    autoChooser.addOption("Right Position", createRightPositionAuto());
     autoChooser.addOption("Trench Blocker", new TrenchAuto(driveSubsystem));
     autoChooser.addOption("Drive Forward", createDriveForwardAuto());
     autoChooser.addOption("Score And Drive", createScoreAndDriveAuto());
     autoChooser.addOption("Drive Turn Drive", createDriveTurnDriveAuto());
+    //Isaacs fault
+    autoChooser.addOption("Spin", createSpinAuto());
 
     SmartDashboard.putData("Auto Mode", autoChooser);
   }
@@ -133,6 +137,28 @@ public class RobotContainer {
         new TurnToAngle(driveSubsystem, 90.0).withTimeout(2.5),
         new AutoDrive(driveSubsystem, 0.6, 0.0, 1.0));
   }
+
+  private Command createLeftPositionAuto() {
+    return Commands.sequence(
+      new AutoDrive(driveSubsystem, 0, 0.25, 1.5),
+      new AutoDrive(driveSubsystem, 0.5, 0.0, 1.5),    
+      new SpinUp(fuelSubsystem).withTimeout(SPIN_UP_SECONDS),
+      new Launch(fuelSubsystem).withTimeout(14));
+  }
+
+  private Command createRightPositionAuto() {
+    return Commands.sequence(
+      new AutoDrive(driveSubsystem, 0, -0.25, 1.5),
+      new AutoDrive(driveSubsystem, 0.5, 0.0, 1.5),    
+      new SpinUp(fuelSubsystem).withTimeout(SPIN_UP_SECONDS),
+      new Launch(fuelSubsystem).withTimeout(15));
+  }
+
+    private Command createSpinAuto() {
+    return Commands.sequence(new TurnToAngle(driveSubsystem, 720).withTimeout(20));
+
+      
+    }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
