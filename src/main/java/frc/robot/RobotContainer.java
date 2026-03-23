@@ -4,15 +4,22 @@
 
 package frc.robot;
 
+import edu.wpi.first.wpilibj.AddressableLED;
+import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.DriverStation;
+import edu.wpi.first.wpilibj.DriverStation.Alliance;
+import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.util.Color;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import static frc.robot.Constants.OperatorConstants.*;
+import static edu.wpi.first.units.Units.MetersPerSecond;
 import static frc.robot.Constants.FuelConstants.*;
 
 import frc.robot.commands.AutoDrive;
@@ -47,6 +54,10 @@ public class RobotContainer {
 
   // The driver's controller
   private final CommandGenericHID driverController = new CommandGenericHID(DRIVER_CONTROLLER_PORT);
+  //lights
+  private final AddressableLED leds = new AddressableLED(3);
+  private final AddressableLEDBuffer m_ledBuffer = new AddressableLEDBuffer(300);
+  
 
   // The operator's controller
   //CURRENTLY NOT IN USE
@@ -63,6 +74,7 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
+    configureLEDS();
     configureBindings();
     configureAutonomousChooser();
   }
@@ -78,6 +90,39 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
+
+  private void configureLEDS(){
+    leds.setLength(m_ledBuffer.getLength());
+     leds.setData(m_ledBuffer);
+    leds.start();
+    LEDPattern red = LEDPattern.solid(Color.kRed);
+    LEDPattern blue = LEDPattern.solid(Color.kBlue);
+    LEDPattern rainbow=LEDPattern.rainbow(255,128);
+  
+   if (DriverStation.getAlliance().get() == Alliance.Red){
+        // Apply the LED pattern to the data buffer
+       red.applyTo(m_ledBuffer);
+      // Write the data to the LED strip
+      leds.setData(m_ledBuffer);
+
+  } 
+  else if (DriverStation.getAlliance().get() == Alliance.Blue){
+    blue.applyTo(m_ledBuffer);
+    leds.setData(m_ledBuffer);
+  }
+  else{
+   rainbow.applyTo(m_ledBuffer);
+    leds.setData(m_ledBuffer);
+  
+  
+  }
+  
+  
+  
+  
+  
+}
+
   private void configureBindings() {
 
     // Toggle intake on/off with left bumper - press once to start, press again to stop
@@ -103,6 +148,8 @@ public class RobotContainer {
     fuelSubsystem.setDefaultCommand(fuelSubsystem.run(() -> fuelSubsystem.stop()));
 
     climbSubsystem.setDefaultCommand(new Climb(climbSubsystem, false, downLimitSwitch, driverController));
+
+   
   }
 
   private void configureAutonomousChooser() {
@@ -140,22 +187,20 @@ public class RobotContainer {
 
   private Command createLeftPositionAuto() {
     return Commands.sequence(
-      new AutoDrive(driveSubsystem, 0, 0.25, 1.5),
-      new AutoDrive(driveSubsystem, 0.5, 0.0, 1.5),    
+      new AutoDrive(driveSubsystem, 0.5, 0.25, 1.5),    
       new SpinUp(fuelSubsystem).withTimeout(SPIN_UP_SECONDS),
       new Launch(fuelSubsystem).withTimeout(14));
   }
 
   private Command createRightPositionAuto() {
     return Commands.sequence(
-      new AutoDrive(driveSubsystem, 0, -0.25, 1.5),
-      new AutoDrive(driveSubsystem, 0.5, 0.0, 1.5),    
+      new AutoDrive(driveSubsystem, 0.5, -0.25, 1.5),    
       new SpinUp(fuelSubsystem).withTimeout(SPIN_UP_SECONDS),
       new Launch(fuelSubsystem).withTimeout(15));
   }
 
     private Command createSpinAuto() {
-    return Commands.sequence(new TurnToAngle(driveSubsystem, 720).withTimeout(20));
+    return Commands.sequence(new AutoDrive(driveSubsystem, 0, 3, 10));
 
       
     }

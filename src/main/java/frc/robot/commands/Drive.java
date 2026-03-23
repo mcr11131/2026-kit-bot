@@ -63,7 +63,7 @@ public class Drive extends Command {
 
     // If no throttle but steering input, spin in place at 25% power
     if (Math.abs(throttle) < 1e-3 && Math.abs(turn) > 1e-3) {
-      driveSubsystem.spinInPlace(-0.3 * Math.signum(turn));
+      driveSubsystem.spinInPlace(-0.15 * Math.signum(turn));
       return;
     }
 
