@@ -113,8 +113,6 @@ public class RobotContainer {
   else{
    rainbow.applyTo(m_ledBuffer);
     leds.setData(m_ledBuffer);
-  
-  
   }
   
   
