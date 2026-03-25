@@ -19,7 +19,6 @@ import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import static frc.robot.Constants.OperatorConstants.*;
-import static edu.wpi.first.units.Units.MetersPerSecond;
 import static frc.robot.Constants.FuelConstants.*;
 
 import frc.robot.commands.AutoDrive;
@@ -48,22 +47,19 @@ import frc.robot.subsystems.CANFuelSubsystem;
 public class RobotContainer {
   // The robot's subsystems
   private final CANDriveSubsystem driveSubsystem = new CANDriveSubsystem();
-  private final CANFuelSubsystem fuelSubsystem = new CANFuelSubsystem(); 
+  private final CANFuelSubsystem fuelSubsystem = new CANFuelSubsystem();
   private final CANClimbSubsystem climbSubsystem = new CANClimbSubsystem();
-
 
   // The driver's controller
   private final CommandGenericHID driverController = new CommandGenericHID(DRIVER_CONTROLLER_PORT);
-  //lights
+  // lights
   private final AddressableLED leds = new AddressableLED(3);
-  private final AddressableLEDBuffer m_ledBuffer = new AddressableLEDBuffer(300);
-  
+  private final AddressableLEDBuffer m_ledBuffer = new AddressableLEDBuffer(120);
 
   // The operator's controller
-  //CURRENTLY NOT IN USE
+  // CURRENTLY NOT IN USE
   private final CommandGenericHID operatorController = new CommandGenericHID(
       OPERATOR_CONTROLLER_PORT);
-
 
   // The autonomous chooser
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -91,41 +87,39 @@ public class RobotContainer {
    * joysticks}.
    */
 
-  private void configureLEDS(){
+  private void configureLEDS() {
+    final Color kPuce = new Color(80,20,40);
     leds.setLength(m_ledBuffer.getLength());
-     leds.setData(m_ledBuffer);
+    leds.setData(m_ledBuffer);
     leds.start();
     LEDPattern red = LEDPattern.solid(Color.kRed);
     LEDPattern blue = LEDPattern.solid(Color.kBlue);
-    LEDPattern rainbow=LEDPattern.rainbow(255,128);
-  
-   if (DriverStation.getAlliance().get() == Alliance.Red){
-        // Apply the LED pattern to the data buffer
-       red.applyTo(m_ledBuffer);
-      // Write the data to the LED strip
-      leds.setData(m_ledBuffer);
+    LEDPattern rainbow = LEDPattern.rainbow(255, 128);
+    LEDPattern alliance = LEDPattern.solid(Color.kWhite);
+    LEDPattern puce = LEDPattern.solid(kPuce);
 
-  } 
-  else if (DriverStation.getAlliance().get() == Alliance.Blue){
-    blue.applyTo(m_ledBuffer);
+    if (DriverStation.getAlliance().get() == Alliance.Red) {
+      alliance = red;
+    } else if (DriverStation.getAlliance().get() == Alliance.Blue) {
+      alliance = blue;
+    } else {
+      alliance = rainbow;
+    }
+    alliance = puce;
+    // Apply the LED pattern to the data buffer
+    alliance.applyTo(m_ledBuffer);
+    // Write the data to the LED strip
     leds.setData(m_ledBuffer);
+
   }
-  else{
-   rainbow.applyTo(m_ledBuffer);
-    leds.setData(m_ledBuffer);
-  }
-  
-  
-  
-  
-  
-}
 
   private void configureBindings() {
 
-    // Toggle intake on/off with left bumper - press once to start, press again to stop
+    // Toggle intake on/off with left bumper - press once to start, press again to
+    // stop
     driverController.button(5).toggleOnTrue(new Intake(fuelSubsystem));
-    // Toggle launch on/off with right bumper - press once to start launching, press again to stop
+    // Toggle launch on/off with right bumper - press once to start launching, press
+    // again to stop
     driverController.button(6).toggleOnTrue(new LaunchSequence(fuelSubsystem));
     // While the A button is held on the operator controller, eject fuel back out
     // the intake
@@ -133,8 +127,6 @@ public class RobotContainer {
 
     // Hold X to auto-align + launch, release to stop
     driverController.button(3).whileTrue(new AlignToScore(driveSubsystem, fuelSubsystem));
-
-
 
     // Set the default command for the drive subsystem to the command provided by
     // factory with the values provided by the joystick axes on the driver
@@ -147,7 +139,6 @@ public class RobotContainer {
 
     climbSubsystem.setDefaultCommand(new Climb(climbSubsystem, false, downLimitSwitch, driverController));
 
-   
   }
 
   private void configureAutonomousChooser() {
@@ -158,7 +149,7 @@ public class RobotContainer {
     autoChooser.addOption("Drive Forward", createDriveForwardAuto());
     autoChooser.addOption("Score And Drive", createScoreAndDriveAuto());
     autoChooser.addOption("Drive Turn Drive", createDriveTurnDriveAuto());
-    //Isaacs fault
+    // Isaacs fault
     autoChooser.addOption("Spin", createSpinAuto());
 
     SmartDashboard.putData("Auto Mode", autoChooser);
@@ -185,23 +176,22 @@ public class RobotContainer {
 
   private Command createLeftPositionAuto() {
     return Commands.sequence(
-      new AutoDrive(driveSubsystem, 0.5, 0.25, 1.5),    
-      new SpinUp(fuelSubsystem).withTimeout(SPIN_UP_SECONDS),
-      new Launch(fuelSubsystem).withTimeout(14));
+        new AutoDrive(driveSubsystem, 0.5, 0.25, 1.5),
+        new SpinUp(fuelSubsystem).withTimeout(SPIN_UP_SECONDS),
+        new Launch(fuelSubsystem).withTimeout(14));
   }
 
   private Command createRightPositionAuto() {
     return Commands.sequence(
-      new AutoDrive(driveSubsystem, 0.5, -0.25, 1.5),    
-      new SpinUp(fuelSubsystem).withTimeout(SPIN_UP_SECONDS),
-      new Launch(fuelSubsystem).withTimeout(15));
+        new AutoDrive(driveSubsystem, 0.5, -0.25, 1.5),
+        new SpinUp(fuelSubsystem).withTimeout(SPIN_UP_SECONDS),
+        new Launch(fuelSubsystem).withTimeout(15));
   }
 
-    private Command createSpinAuto() {
+  private Command createSpinAuto() {
     return Commands.sequence(new AutoDrive(driveSubsystem, 0, 3, 10));
 
-      
-    }
+  }
 
   /**
    * Use this to pass the autonomous command to the main {@link Robot} class.
