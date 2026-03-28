@@ -53,6 +53,8 @@ public class CANFuelSubsystem extends SubsystemBase {
     // the config to the controller
     SparkMaxConfig feederConfig = new SparkMaxConfig();
     feederConfig.smartCurrentLimit(FLYWHEEL_MOTOR_CURRENT_LIMIT);
+    feederConfig.voltageCompensation(12);  // BROWNOUT FIX: Consistent performance as battery voltage drops
+    feederConfig.openLoopRampRate(0.1);   // BROWNOUT FIX: Prevent current spikes (100ms to full power)
     feederRoller.configure(feederConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     // create the configuration for the launcher roller, set a current limit, set
@@ -61,11 +63,15 @@ public class CANFuelSubsystem extends SubsystemBase {
     SparkMaxConfig launcherConfig = new SparkMaxConfig();
     launcherConfig.inverted(true);
     launcherConfig.smartCurrentLimit(AUGER_MOTOR_CURRENT_LIMIT);
+    launcherConfig.voltageCompensation(12);  // BROWNOUT FIX: Consistent performance as battery voltage drops
+    launcherConfig.openLoopRampRate(0.1);   // BROWNOUT FIX: Prevent current spikes (100ms to full power)
     intakeLauncherRoller.configure(launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     //Intake configuring, including current limit and safe reset parameters...
     SparkMaxConfig intakeConfig = new SparkMaxConfig();
     intakeConfig.smartCurrentLimit(INTAKE_MOTOR_CURRENT_LIMIT);
+    intakeConfig.voltageCompensation(12);  // BROWNOUT FIX: Consistent performance as battery voltage drops
+    intakeConfig.openLoopRampRate(0.1);   // BROWNOUT FIX: Prevent current spikes (100ms to full power)
     intakeRoller.configure(intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     // put default speed values for various fuel operations onto the dashboard

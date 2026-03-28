@@ -137,8 +137,14 @@ public class AlignToScore extends Command {
       }
     }
 
+    // BROWNOUT FIX: Reduce drive power when fuel system is active to prevent brownouts
+    double powerScale = 1.0;
+    if (launchState == LaunchState.SPINNING_UP || launchState == LaunchState.LAUNCHING) {
+      powerScale = 0.6;  // Reduce drive power to 60% when fuel system is running
+    }
+    
     // Drive: forward/backward for distance, rotation for aim
-    driveSubsystem.driveArcade(driveSpeed, rotationSpeed);
+    driveSubsystem.driveArcade(driveSpeed * powerScale, rotationSpeed * powerScale);
 
     // Update dashboard
     boolean aligned = aimed && atDistance;
