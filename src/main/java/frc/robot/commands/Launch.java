@@ -29,7 +29,9 @@ public class Launch extends Command {
         .setIntakeLauncherRoller(
            SmartDashboard.getNumber("Launching launcher speed", LAUNCHING_AUGER_SPEED));
     fuelSubsystem.setFeederRoller(SmartDashboard.getNumber("Launching feeder speed", LAUNCHING_FLYWHEEL_SPEED));
-    fuelSubsystem.setIntakeRoller(LAUNCHING_INTAKE_SPEED);
+    // ANTI-JAM FIX: Don't run intake during shooting - creates opposing forces
+    // fuelSubsystem.setIntakeRoller(LAUNCHING_INTAKE_SPEED); // REMOVED
+    fuelSubsystem.setIntakeRoller(0); // Keep intake stopped during shooting
   }
 
   // Called every time the scheduler runs while the command is scheduled. This
