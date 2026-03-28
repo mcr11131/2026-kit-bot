@@ -19,6 +19,9 @@ import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import static frc.robot.Constants.OperatorConstants.*;
+
+import java.rmi.dgc.Lease;
+
 import static frc.robot.Constants.FuelConstants.*;
 
 import frc.robot.commands.AutoDrive;
@@ -27,6 +30,7 @@ import frc.robot.commands.Drive;
 import frc.robot.commands.Eject;
 import frc.robot.commands.ExampleAuto;
 import frc.robot.commands.Intake;
+import frc.robot.commands.LEDS;
 import frc.robot.commands.Launch;
 import frc.robot.commands.LaunchSequence;
 import frc.robot.commands.AlignToScore;
@@ -36,6 +40,7 @@ import frc.robot.commands.TurnToAngle;
 import frc.robot.subsystems.CANClimbSubsystem;
 import frc.robot.subsystems.CANDriveSubsystem;
 import frc.robot.subsystems.CANFuelSubsystem;
+import frc.robot.subsystems.LEDSubsystem;
 
 /**
  * This class is where the bulk of the robot should be declared. Since
@@ -49,12 +54,13 @@ public class RobotContainer {
   private final CANDriveSubsystem driveSubsystem = new CANDriveSubsystem();
   private final CANFuelSubsystem fuelSubsystem = new CANFuelSubsystem();
   private final CANClimbSubsystem climbSubsystem = new CANClimbSubsystem();
+  private final LEDSubsystem ledSubsystem = new LEDSubsystem();
 
   // The driver's controller
   private final CommandGenericHID driverController = new CommandGenericHID(DRIVER_CONTROLLER_PORT);
   // lights
-  private final AddressableLED leds = new AddressableLED(3);
-  private final AddressableLEDBuffer m_ledBuffer = new AddressableLEDBuffer(120);
+ // private final AddressableLED leds = new AddressableLED(3);
+ // private final AddressableLEDBuffer m_ledBuffer = new AddressableLEDBuffer(120);
 
   // The operator's controller
   // CURRENTLY NOT IN USE
@@ -70,7 +76,7 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-    configureLEDS();
+   // configureLEDS();
     configureBindings();
     configureAutonomousChooser();
   }
@@ -86,9 +92,8 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
-
+/*
   private void configureLEDS() {
-    final Color kPuce = new Color(80,20,40);
     leds.setLength(m_ledBuffer.getLength());
     leds.setData(m_ledBuffer);
     leds.start();
@@ -96,7 +101,7 @@ public class RobotContainer {
     LEDPattern blue = LEDPattern.solid(Color.kBlue);
     LEDPattern rainbow = LEDPattern.rainbow(255, 128);
     LEDPattern alliance = LEDPattern.solid(Color.kWhite);
-    LEDPattern puce = LEDPattern.solid(kPuce);
+    LEDPattern puce = LEDPattern.solid(Constants.kPuce);
 
     if (DriverStation.getAlliance().get() == Alliance.Red) {
       alliance = red;
@@ -112,6 +117,7 @@ public class RobotContainer {
     leds.setData(m_ledBuffer);
 
   }
+    */
 
   private void configureBindings() {
 
@@ -139,7 +145,10 @@ public class RobotContainer {
 
     climbSubsystem.setDefaultCommand(new Climb(climbSubsystem, false, downLimitSwitch, driverController));
 
+    ledSubsystem.setDefaultCommand(new LEDS(ledSubsystem));
+
   }
+
 
   private void configureAutonomousChooser() {
     autoChooser.setDefaultOption("Middle Position", new ExampleAuto(driveSubsystem, fuelSubsystem));
