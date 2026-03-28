@@ -35,10 +35,13 @@ public class CANClimbSubsystem extends SubsystemBase {
    // climberOne = new SparkMax(CLIMBER_ONE, MotorType.kBrushless);
     climberTwo = new SparkMax(CLIMBER_TWO, MotorType.kBrushless);
 
-    // create the configuration for the feeder roller, set a current limit and apply
+    // create the configuration for the climber, set a current limit and apply
     // the config to the controller
     SparkMaxConfig climbConfig = new SparkMaxConfig();
     climbConfig.smartCurrentLimit(CLIMBER_ONE_CURRENT_LIMIT);
+    climbConfig.voltageCompensation(12);  // BROWNOUT FIX: Consistent performance as battery voltage drops
+    climbConfig.openLoopRampRate(0.2);   // BROWNOUT FIX: Slower ramp for high-torque climber operation
+    climbConfig.secondaryCurrentLimit(35.0);  // BROWNOUT FIX: Lower secondary limit for climber
   //  climberOne.configure(climbConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     climberTwo.configure(climbConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     
