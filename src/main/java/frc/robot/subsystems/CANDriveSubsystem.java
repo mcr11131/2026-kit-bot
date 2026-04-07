@@ -136,8 +136,9 @@ public class CANDriveSubsystem extends SubsystemBase {
     // Configure velocity PID + feedforward on the SparkMax
     leaderConfig.closedLoop
         .feedbackSensor(FeedbackSensor.kPrimaryEncoder)
-        .p(DRIVE_KP)
-        .velocityFF(DRIVE_KFF);
+        .p(DRIVE_KP);
+    leaderConfig.closedLoop.feedForward
+        .kV(DRIVE_KFF);
 
     // Left side inverted so that positive values drive both sides forward
     SparkMaxConfig leftLeaderConfig = new SparkMaxConfig().apply(leaderConfig);

@@ -55,7 +55,6 @@ public class CANClimbSubsystem extends SubsystemBase {
     climberTwo.configure(climbConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     // Clear any sticky faults from previous runs
-    climberOne.clearFaults();
     climberTwo.clearFaults();
 
     // Initialize telemetry log entries
@@ -110,14 +109,11 @@ public class CANClimbSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
-    // Status indicators for climb motors
-    SmartDashboard.putBoolean("Left Climb Active", climberOne.get() != 0);
+    // Status indicators for climb motors (climberOne removed)
     SmartDashboard.putBoolean("Right Climb Active", climberTwo.get() != 0);
 
     // Log telemetry for post-match analysis
-    logLeftClimbOutput.append(climberOne.getAppliedOutput());
     logRightClimbOutput.append(climberTwo.getAppliedOutput());
-    logLeftClimbCurrent.append(climberOne.getOutputCurrent());
     logRightClimbCurrent.append(climberTwo.getOutputCurrent());
   }
 
