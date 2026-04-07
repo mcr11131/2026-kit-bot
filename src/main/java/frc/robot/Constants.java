@@ -91,8 +91,6 @@ public static final Color kPuce = new Color(100, 30, 20);
     public static final double EJECT_AUGER_SPEED = -1.0;      // Launcher ejects balls
     public static final double EJECT_INTAKE_SPEED = 1.0;
 
-    //General climb speed
-    public static final double speed = 1;
   }
 
   public static final class ClimberConstants {
@@ -101,16 +99,13 @@ public static final Color kPuce = new Color(100, 30, 20);
     //public static final int CLIMBER_ONE = 14;
     public static final int CLIMBER_TWO = 16;
 
-    // Current limit for climber motors (NEOs — 40A protects windings)
-    public static final int CLIMBER_ONE_CURRENT_LIMIT = 40;
+    // Current limit for climber motor (NEO — 40A protects windings)
     public static final int CLIMBER_TWO_CURRENT_LIMIT = 40;
 
     //Climber voltage
     public static final double CLIMBER_DOWN_SPEED = -0.2;
     public static final double CLIMBER_UP_SPEED = 0.2;
 
-    //CLIMBER SPEED
-    public static final double speed = 1;
   }
 
   public static final class SimConstants {

@@ -84,20 +84,21 @@ public class Tracking extends Command {
     return false;
   }
 
-  public double speedToDrive(double offset){
-double speed;
-if (Math.abs(offset)>4){
-  speed = offset/35;
-  if(speed > 1) {
-    speed = 1;
-  } else if (speed < -1) {
-    speed = -1;
+  // M6 fix: added minimum speed to overcome static friction
+  public double speedToDrive(double offset) {
+    double speed;
+    if (Math.abs(offset) > 4) {
+      speed = offset / 35;
+      speed = MathUtil.clamp(speed, -1.0, 1.0);
+      // Minimum speed to overcome static friction
+      if (Math.abs(speed) < 0.05) {
+        speed = Math.copySign(0.05, speed);
+      }
+    } else {
+      speed = 0;
+    }
+    return speed;
   }
-} else {
-  speed = 0;
-}
-  return speed;
-}
 }
 
 

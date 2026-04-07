@@ -6,7 +6,6 @@ package frc.robot.commands;
 
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.Command;
-import frc.robot.Constants;
 import frc.robot.subsystems.CANFuelSubsystem;
 import static frc.robot.Constants.FuelConstants.*;
 
@@ -36,10 +35,15 @@ public class SpinUp extends Command {
   public void execute() {
   }
 
-  // Called once the command ends or is interrupted. Stop the rollers
+  // H4 fix: only full-stop if interrupted (e.g. driver cancelled).
+  // On normal end (timeout in LaunchSequence), leave feeder spinning so
+  // Launch can pick up without a dead gap.
   @Override
   public void end(boolean interrupted) {
-    fuelSubsystem.stop();
+    if (interrupted) {
+      fuelSubsystem.stop();
+    }
+    // On normal end, Launch.initialize() takes over immediately
   }
 
   // Returns true when the command should end.

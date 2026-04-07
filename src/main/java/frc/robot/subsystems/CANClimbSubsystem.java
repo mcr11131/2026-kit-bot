@@ -13,9 +13,6 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.sim.SparkMaxSim;
 
 import edu.wpi.first.math.system.plant.DCMotor;
-import edu.wpi.first.math.system.plant.LinearSystemId;
-import edu.wpi.first.wpilibj.RobotController;
-import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -23,13 +20,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import static frc.robot.Constants.ClimberConstants.*;
 import static frc.robot.Constants.SimConstants.*;
-//Climber1 removed
 public class CANClimbSubsystem extends SubsystemBase {
- // private final SparkMax climberOne;
   private final SparkMax climberTwo;
 
   // Simulation support
-  //private SparkMaxSim climber1Sim;
   private SparkMaxSim climber2Sim;
 
   // Telemetry log entries
@@ -38,20 +32,17 @@ public class CANClimbSubsystem extends SubsystemBase {
   private DoubleLogEntry logLeftClimbCurrent;
   private DoubleLogEntry logRightClimbCurrent;
 
-  // Creates a new CANBallSubsystem.
+  /** Creates a new CANClimbSubsystem. */
   public CANClimbSubsystem() {
-    // create brushed motors for each of the motors on the launcher mechanism
-   // climberOne = new SparkMax(CLIMBER_ONE, MotorType.kBrushless);
     climberTwo = new SparkMax(CLIMBER_TWO, MotorType.kBrushless);
 
     // create the configuration for the climber, set a current limit and apply
     // the config to the controller
     SparkMaxConfig climbConfig = new SparkMaxConfig();
-    climbConfig.smartCurrentLimit(CLIMBER_ONE_CURRENT_LIMIT);
+    climbConfig.smartCurrentLimit(CLIMBER_TWO_CURRENT_LIMIT);
     climbConfig.voltageCompensation(12);  // BROWNOUT FIX: Consistent performance as battery voltage drops
     climbConfig.openLoopRampRate(0.2);   // BROWNOUT FIX: Slower ramp for high-torque climber operation
     climbConfig.secondaryCurrentLimit(35.0);  // BROWNOUT FIX: Lower secondary limit for climber
-  //  climberOne.configure(climbConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
     climberTwo.configure(climbConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
     // Clear any sticky faults from previous runs
@@ -64,45 +55,20 @@ public class CANClimbSubsystem extends SubsystemBase {
     logLeftClimbCurrent = new DoubleLogEntry(log, "/climb/leftCurrentAmps");
     logRightClimbCurrent = new DoubleLogEntry(log, "/climb/rightCurrentAmps");
     
-    // put default values for various fuel operations onto the dashboard
-    // all commands using this subsystem pull values from the dashbaord to allow
-    // you to tune the values easily, and then replace the values in Constants.java
-    // with your new values. For more information, see the Software Guide.
-    //SmartDashboard.putNumber("Intaking feeder roller value", INTAKING_FEEDER_VOLTAGE);
-    //SmartDashboard.putNumber("Intaking intake roller value", INTAKING_INTAKE_VOLTAGE);
-    //SmartDashboard.putNumber("Launching feeder roller value", LAUNCHING_FEEDER_VOLTAGE);
-    //SmartDashboard.putNumber("Launching launcher roller value", LAUNCHING_LAUNCHER_VOLTAGE);
-    //SmartDashboard.putNumber("Spin-up feeder roller value", SPIN_UP_FEEDER_VOLTAGE);
-
     // Initialize simulation objects
     DCMotor neo = DCMotor.getNEO(1);
-  //  climber1Sim = new SparkMaxSim(climberOne, neo);
     climber2Sim = new SparkMaxSim(climberTwo, neo);
   }
 
-  // A method to set the voltage of the intake roller
-  /*public void setClimbers(double speed) {
-    climberOne.set(speed);
-    climberTwo.set(-speed);
-  }*/
-  
- // public void setLeft(double speed) {
-//    climberOne.set(speed);
-//  }
   public void setRight(double speed) {
     climberTwo.set(speed);
   }
   
 
-  // A method to stop the rollers
   public void stop() {
-  //  climberOne.set(0);
     climberTwo.set(0);
   }
 
- // public void leftstop() {
-   // climberOne.set(0);
-  //}
   public void rightstop() {
     climberTwo.set(0);
   }
@@ -117,23 +83,4 @@ public class CANClimbSubsystem extends SubsystemBase {
     logRightClimbCurrent.append(climberTwo.getOutputCurrent());
   }
 
-  /*
-  @Override
-  
-  public void simulationPeriodic() {
-    double vbus = RobotController.getBatteryVoltage();
-
-    launcherFlywheelSim.setInputVoltage(launcherSim.getAppliedOutput() * vbus);
-    feederFlywheelSim.setInputVoltage(feederSim.getAppliedOutput() * vbus);
-
-    launcherFlywheelSim.update(0.02);
-    feederFlywheelSim.update(0.02);
-
-    double launcherRPM = launcherFlywheelSim.getAngularVelocityRPM();
-    double feederRPM = feederFlywheelSim.getAngularVelocityRPM();
-
-    launcherSim.iterate(launcherRPM, vbus, 0.02);
-    feederSim.iterate(feederRPM, vbus, 0.02);
-  }
-  */
 }

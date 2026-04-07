@@ -4,25 +4,15 @@
 
 package frc.robot;
 
-import edu.wpi.first.wpilibj.AddressableLED;
-import edu.wpi.first.wpilibj.AddressableLEDBuffer;
 import edu.wpi.first.wpilibj.DigitalInput;
-import edu.wpi.first.wpilibj.DriverStation;
-import edu.wpi.first.wpilibj.DriverStation.Alliance;
-import edu.wpi.first.wpilibj.LEDPattern;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
-import edu.wpi.first.wpilibj.util.Color;
-import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
-import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
-import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
 import static frc.robot.Constants.OperatorConstants.*;
-
-import java.rmi.dgc.Lease;
 
 import static frc.robot.Constants.FuelConstants.*;
 
@@ -60,10 +50,6 @@ public class RobotContainer {
 
   // The driver's controller
   private final CommandGenericHID driverController = new CommandGenericHID(DRIVER_CONTROLLER_PORT);
-  // lights
- // private final AddressableLED leds = new AddressableLED(3);
- // private final AddressableLEDBuffer m_ledBuffer = new AddressableLEDBuffer(120);
-
   // The operator's controller
   // CURRENTLY NOT IN USE
   private final CommandGenericHID operatorController = new CommandGenericHID(
@@ -78,7 +64,6 @@ public class RobotContainer {
    * The container for the robot. Contains subsystems, OI devices, and commands.
    */
   public RobotContainer() {
-   // configureLEDS();
     configureBindings();
     configureAutonomousChooser();
   }
@@ -94,33 +79,6 @@ public class RobotContainer {
    * {@link edu.wpi.first.wpilibj2.command.button.CommandJoystick Flight
    * joysticks}.
    */
-/*
-  private void configureLEDS() {
-    leds.setLength(m_ledBuffer.getLength());
-    leds.setData(m_ledBuffer);
-    leds.start();
-    LEDPattern red = LEDPattern.solid(Color.kRed);
-    LEDPattern blue = LEDPattern.solid(Color.kBlue);
-    LEDPattern rainbow = LEDPattern.rainbow(255, 128);
-    LEDPattern alliance = LEDPattern.solid(Color.kWhite);
-    LEDPattern puce = LEDPattern.solid(Constants.kPuce);
-
-    if (DriverStation.getAlliance().get() == Alliance.Red) {
-      alliance = red;
-    } else if (DriverStation.getAlliance().get() == Alliance.Blue) {
-      alliance = blue;
-    } else {
-      alliance = rainbow;
-    }
-    alliance = puce;
-    // Apply the LED pattern to the data buffer
-    alliance.applyTo(m_ledBuffer);
-    // Write the data to the LED strip
-    leds.setData(m_ledBuffer);
-
-  }
-    */
-
   private void configureBindings() {
 
     // Toggle intake on/off with left bumper - press once to start, press again to
@@ -145,7 +103,7 @@ public class RobotContainer {
 
     fuelSubsystem.setDefaultCommand(fuelSubsystem.run(() -> fuelSubsystem.stop()));
 
-    climbSubsystem.setDefaultCommand(new Climb(climbSubsystem, false, downLimitSwitch, driverController));
+    climbSubsystem.setDefaultCommand(new Climb(climbSubsystem, downLimitSwitch, driverController));
 
     ledSubsystem.setDefaultCommand(new LEDS(ledSubsystem));
 
@@ -210,6 +168,11 @@ public class RobotContainer {
    */
   public void setRumble(double intensity) {
     driverController.getHID().setRumble(GenericHID.RumbleType.kBothRumble, intensity);
+  }
+
+  /** Expose drive subsystem for button 4 direction toggle (used only by Drive command). */
+  public CANDriveSubsystem getDriveSubsystem() {
+    return driveSubsystem;
   }
 
   /**

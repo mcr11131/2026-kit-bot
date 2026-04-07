@@ -55,15 +55,21 @@ public class LEDSubsystem extends SubsystemBase {
     }
 
     public void configureAlliance() {
-      LEDPattern alliancepattern;
-        if (DriverStation.getAlliance().get() == Alliance.Red) {
-            alliancepattern = red;
-        } else if (DriverStation.getAlliance().get() == Alliance.Blue) {
-            alliancepattern = blue;
-        } else {
-            alliancepattern = puce;
-        }
-        defaultColor(alliancepattern);
+      var alliance = DriverStation.getAlliance();
+      LEDPattern alliancePattern;
+      if (alliance.isPresent() && alliance.get() == Alliance.Red) {
+          alliancePattern = red;
+      } else if (alliance.isPresent() && alliance.get() == Alliance.Blue) {
+          alliancePattern = blue;
+      } else {
+          alliancePattern = puce;
+      }
+      defaultColor(alliancePattern);
+    }
+
+    /** Returns true if alliance data is available from FMS/DS. */
+    public boolean isAllianceKnown() {
+        return DriverStation.getAlliance().isPresent();
     }
 
 

@@ -54,7 +54,7 @@ public class CANFuelSubsystem extends SubsystemBase {
   private SparkMaxSim launcherSim;
   private FlywheelSim launcherFlywheelSim;
 
-  /** Creates a new CANBallSubsystem. */
+  /** Creates a new CANFuelSubsystem. */
   public CANFuelSubsystem() {
     // create brushless motors for each of the motors on the launcher mechanism
     intakeLauncherRoller = new SparkMax(AUGER_MOTOR_ID, MotorType.kBrushless);
@@ -71,6 +71,12 @@ public class CANFuelSubsystem extends SubsystemBase {
     feederConfig.Voltage.PeakForwardVoltage = 12;
     feederConfig.Voltage.PeakReverseVoltage = -12;
     feederRoller.getConfigurator().apply(feederConfig);
+
+    // H3 fix: clear sticky faults from previous runs/brownouts
+    feederRoller.clearStickyFaults();
+
+    // L3: log TalonFX firmware version for pit diagnostics
+    System.out.println("[Fuel] Kraken X60 (CAN " + FLYWHEEL_MOTOR_ID + ") firmware: " + feederRoller.getVersion());
 
     // cache status signals for periodic telemetry
     feederCurrentSignal = feederRoller.getStatorCurrent();

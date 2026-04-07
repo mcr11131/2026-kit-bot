@@ -74,8 +74,8 @@ public class Robot extends TimedRobot {
     // Publish the full button layout so drivers can reference controls on-screen
     SmartDashboard.putString("Controls",
         "LB(5): Toggle Intake | RB(6): Toggle Launch | A(2): Eject (hold) | "
-        + "X(3): AprilTag Track (hold) | Back(7): Reverse Direction | "
-        + "POV Up/Down: Left Climb Up/Down | Btn1: Right Climb Up | Btn4: Right Climb Down");
+        + "X(3): AprilTag Align+Score (hold) | Back(7): Reverse Direction | "
+        + "POV Up/Down: Climb Up/Down | Btn1: Climb Up");
 
     // Log command starts and finishes for debugging
     CommandScheduler.getInstance().onCommandInitialize(
@@ -102,6 +102,7 @@ public class Robot extends TimedRobot {
   @Override
   public void robotPeriodic() {
     // One-time diagnostic: print all NT tables containing "limelight" to find the correct name
+    // M5 fix: set flag after loop so it doesn't run every 20ms if no limelight table found
     if (!limelightDiagDone) {
       var tables = NetworkTableInstance.getDefault().getTable("").getSubTables();
       for (String table : tables) {
@@ -111,9 +112,9 @@ public class Robot extends TimedRobot {
           for (String entry : entries) {
             System.out.println("[LIMELIGHT DIAG]   " + table + "/" + entry);
           }
-          limelightDiagDone = true;
         }
       }
+      limelightDiagDone = true;
     }
     // Runs the Scheduler. This is responsible for polling buttons, adding
     // newly-scheduled
