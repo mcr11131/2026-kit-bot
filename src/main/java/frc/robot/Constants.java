@@ -19,7 +19,7 @@ import edu.wpi.first.wpilibj.util.Color;
 public final class Constants {
 
 
-//colors 
+//colors
 public static final Color kPuce = new Color(100, 30, 20);
 
 
@@ -66,8 +66,9 @@ public static final Color kPuce = new Color(100, 30, 20);
     public static final int AUGER_MOTOR_ID = 15;
     public static final int INTAKE_MOTOR_ID = 17;
 
-    // Current limit for fuel mechanism motors (NEOs — 40A protects windings)
-    public static final int FLYWHEEL_MOTOR_CURRENT_LIMIT = 40;
+    // Current limit for fuel mechanism motors
+    // Kraken X60 on CAN 18 — 60A stator limit is safe for sustained use
+    public static final int FLYWHEEL_MOTOR_CURRENT_LIMIT = 60;
     public static final int AUGER_MOTOR_CURRENT_LIMIT = 40;
     public static final int INTAKE_MOTOR_CURRENT_LIMIT = 40;
 

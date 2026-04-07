@@ -25,6 +25,7 @@ import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.PowerDistribution;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.drive.DifferentialDrive;
 import edu.wpi.first.wpilibj.simulation.BatterySim;
 import edu.wpi.first.wpilibj.simulation.DifferentialDrivetrainSim;
@@ -84,6 +85,16 @@ public class CANDriveSubsystem extends SubsystemBase {
   private SparkMaxSim rightLeaderSim;
   private SparkMaxSim rightFollowerSim;
   private DifferentialDrivetrainSim drivetrainSim;
+
+  // Encoder health tracking — detect stuck encoders while motors are commanded
+  private double encoderWarningStartTime = -1;
+  private static final double ENCODER_WARNING_THRESHOLD_SECONDS = 2.0;
+  private static final double MOTOR_COMMAND_THRESHOLD = 0.1;
+  private boolean encoderWarningActive = false;
+
+  // Track last commanded speeds for status display
+  private double lastCommandedLeft = 0;
+  private double lastCommandedRight = 0;
 
   public CANDriveSubsystem() {
     // Create brushless drivetrain motors
@@ -149,6 +160,7 @@ public class CANDriveSubsystem extends SubsystemBase {
     leftEncoder = leftLeader.getEncoder();
     rightEncoder = rightLeader.getEncoder();
 
+    // Clear any sticky faults from previous runs
     leftLeader.clearFaults();
     leftFollower.clearFaults();
     rightLeader.clearFaults();
@@ -212,6 +224,24 @@ public class CANDriveSubsystem extends SubsystemBase {
 
   @Override
   public void periodic() {
+    // Encoder health check - warn if motors are commanded but encoders read zero
+    boolean motorsCommanded = Math.abs(lastCommandedLeft) > MOTOR_COMMAND_THRESHOLD
+        || Math.abs(lastCommandedRight) > MOTOR_COMMAND_THRESHOLD;
+    boolean encodersStuck = Math.abs(leftEncoder.getVelocity()) < 0.01
+        && Math.abs(rightEncoder.getVelocity()) < 0.01;
+
+    if (motorsCommanded && encodersStuck) {
+      if (encoderWarningStartTime < 0) {
+        encoderWarningStartTime = Timer.getFPGATimestamp();
+      }
+      encoderWarningActive = (Timer.getFPGATimestamp() - encoderWarningStartTime)
+          > ENCODER_WARNING_THRESHOLD_SECONDS;
+    } else {
+      encoderWarningStartTime = -1;
+      encoderWarningActive = false;
+    }
+    SmartDashboard.putBoolean("Encoder Warning", encoderWarningActive);
+
     // Read motor metrics
     double leftCurrent = leftLeader.getOutputCurrent();
     double rightCurrent = rightLeader.getOutputCurrent();
@@ -368,6 +398,8 @@ public class CANDriveSubsystem extends SubsystemBase {
   public void driveArcade(double xSpeed, double zRotation) {
     double driveScale = getBrownoutScale();
     var speeds = DifferentialDrive.arcadeDriveIK(xSpeed, zRotation, true);
+    lastCommandedLeft = speeds.left;
+    lastCommandedRight = speeds.right;
     leftController.setSetpoint(scaleVelocitySetpoint(speeds.left, driveScale), ControlType.kVelocity);
     rightController.setSetpoint(scaleVelocitySetpoint(speeds.right, driveScale), ControlType.kVelocity);
   }
@@ -375,6 +407,8 @@ public class CANDriveSubsystem extends SubsystemBase {
   public void driveTank(double lSpeed, double rSpeed) {
     double driveScale = getBrownoutScale();
     var speeds = DifferentialDrive.tankDriveIK(lSpeed, rSpeed, true);
+    lastCommandedLeft = speeds.left;
+    lastCommandedRight = speeds.right;
     leftController.setSetpoint(scaleDutyCycle(speeds.left, driveScale), ControlType.kDutyCycle);
     rightController.setSetpoint(scaleDutyCycle(speeds.right, driveScale), ControlType.kDutyCycle);
   }
@@ -382,6 +416,8 @@ public class CANDriveSubsystem extends SubsystemBase {
   // Direct duty cycle spin - bypasses speed modifiers for reliable in-place rotation
   public void spinInPlace(double speed) {
     double driveScale = getBrownoutScale();
+    lastCommandedLeft = speed;
+    lastCommandedRight = -speed;
     leftController.setSetpoint(scaleDirectDutyCycle(speed, driveScale), ControlType.kDutyCycle);
     rightController.setSetpoint(scaleDirectDutyCycle(-speed, driveScale), ControlType.kDutyCycle);
   }
@@ -392,6 +428,8 @@ public class CANDriveSubsystem extends SubsystemBase {
   public void driveCurvature(double xSpeed, double zRotation, boolean allowTurnInPlace) {
     double driveScale = getBrownoutScale();
     var speeds = DifferentialDrive.curvatureDriveIK(xSpeed, zRotation, allowTurnInPlace);
+    lastCommandedLeft = speeds.left;
+    lastCommandedRight = speeds.right;
     leftController.setSetpoint(scaleDutyCycle(speeds.left, driveScale), ControlType.kDutyCycle);
     rightController.setSetpoint(scaleDutyCycle(speeds.right, driveScale), ControlType.kDutyCycle);
   }

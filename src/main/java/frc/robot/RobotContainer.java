@@ -13,8 +13,10 @@ import edu.wpi.first.wpilibj.LEDPattern;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj.util.Color;
+import edu.wpi.first.wpilibj.GenericHID;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.Commands;
+import edu.wpi.first.wpilibj2.command.InstantCommand;
 import edu.wpi.first.wpilibj2.command.button.CommandGenericHID;
 import edu.wpi.first.wpilibj2.command.button.CommandPS4Controller;
 import edu.wpi.first.wpilibj2.command.button.Trigger;
@@ -200,6 +202,14 @@ public class RobotContainer {
   private Command createSpinAuto() {
     return Commands.sequence(new AutoDrive(driveSubsystem, 0, 3, 10));
 
+  }
+
+  /**
+   * Sets rumble intensity on the driver controller to alert for endgame.
+   * @param intensity Rumble intensity from 0.0 to 1.0
+   */
+  public void setRumble(double intensity) {
+    driverController.getHID().setRumble(GenericHID.RumbleType.kBothRumble, intensity);
   }
 
   /**
