@@ -13,6 +13,7 @@ import com.revrobotics.spark.SparkMax;
 import com.revrobotics.sim.SparkMaxSim;
 
 import com.ctre.phoenix6.hardware.TalonFX;
+import com.google.flatbuffers.Constants;
 import com.ctre.phoenix6.configs.TalonFXConfiguration;
 import com.ctre.phoenix6.controls.DutyCycleOut;
 import com.ctre.phoenix6.StatusSignal;
@@ -25,9 +26,12 @@ import edu.wpi.first.units.measure.Voltage;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.RobotController;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.simulation.FlywheelSim;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
+import frc.robot.Constants.FuelConstants;
+
 import static frc.robot.Constants.FuelConstants.*;
 import static frc.robot.Constants.SimConstants.*;
 
@@ -50,12 +54,20 @@ public class CANFuelSubsystem extends SubsystemBase {
   private final DoubleLogEntry launcherTempLog;
   private final DoubleLogEntry feederTempLog;
 
+
+
+  //Timer
+  private final Timer timer;
+
+  boolean burstTrue = true;
+
   // Simulation support
   private SparkMaxSim launcherSim;
   private FlywheelSim launcherFlywheelSim;
 
   /** Creates a new CANFuelSubsystem. */
   public CANFuelSubsystem() {
+    timer = new Timer();
     // create brushless motors for each of the motors on the launcher mechanism
     intakeLauncherRoller = new SparkMax(AUGER_MOTOR_ID, MotorType.kBrushless);
     feederRoller = new TalonFX(FLYWHEEL_MOTOR_ID);
@@ -133,7 +145,15 @@ public class CANFuelSubsystem extends SubsystemBase {
 
   // A method to set the speed (percentage) of the intake/launcher roller
   public void setIntakeLauncherRoller(double speed) {
-    intakeLauncherRoller.set(speed);
+     // timer.delay(FuelConstants.BURST_DELAY);
+    //if(burstTrue) {
+  
+    //  intakeLauncherRoller.set(speed);
+    //  burstTrue = false;
+    //} else {
+      intakeLauncherRoller.set(0);
+    //  burstTrue = true;
+    //}
   }
 
   // A method to set the speed (percentage) of the feeder roller (Kraken X60 / TalonFX)

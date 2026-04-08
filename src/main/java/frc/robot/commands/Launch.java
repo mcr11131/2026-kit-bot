@@ -24,9 +24,7 @@ public class Launch extends Command {
   // appropriate speed values for launching
   @Override
   public void initialize() {
-    fuelSubsystem
-        .setIntakeLauncherRoller(
-           SmartDashboard.getNumber("Launching launcher speed", LAUNCHING_AUGER_SPEED));
+    
     fuelSubsystem.setFeederRoller(SmartDashboard.getNumber("Launching feeder speed", LAUNCHING_FLYWHEEL_SPEED));
     // ANTI-JAM FIX: Don't run intake during shooting - creates opposing forces
     // fuelSubsystem.setIntakeRoller(LAUNCHING_INTAKE_SPEED); // REMOVED
@@ -37,6 +35,7 @@ public class Launch extends Command {
   // command doesn't require updating any values while running
   @Override
   public void execute() {
+    fuelSubsystem.setIntakeLauncherRoller(LAUNCHING_AUGER_SPEED);
   }
 
   // Called once the command ends or is interrupted. Stop the rollers

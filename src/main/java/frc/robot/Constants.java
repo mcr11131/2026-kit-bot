@@ -83,6 +83,9 @@ public static final Color kPuce = new Color(100, 30, 20);
     public static final double LAUNCHING_FLYWHEEL_SPEED = 1;    // Feeder pushes balls out
     public static final double LAUNCHING_AUGER_SPEED = -1.0;  // Launcher shoots balls
     public static final double LAUNCHING_INTAKE_SPEED = -1.0;
+
+    public static final double BURST_DELAY = 0.5;
+
     //SPIN UP
     public static final double SPIN_UP_FLYWHEEL_SPEED = 1.0;      // Feeder feeds forward during spin-up
     public static final double SPIN_UP_SECONDS = 1;
