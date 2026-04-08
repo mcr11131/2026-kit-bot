@@ -26,6 +26,11 @@ public class LEDS extends Command {
       ledSubsystem.configureAlliance();
       allianceSet = true;
     }
+    // A color looks better than no color, also allows us to see if it is connected yet
+    //also will not set if the color has been set already
+     else if (!allianceSet){  
+      ledSubsystem.setPuce();
+      }
   }
 
   // H2 fix: retry alliance color until FMS data arrives
@@ -35,10 +40,18 @@ public class LEDS extends Command {
       ledSubsystem.configureAlliance();
       allianceSet = true;
     }
+    //if the data has not arrived, set to puce
+    //this might be uneccessary
+    else if (!allianceSet){  
+      ledSubsystem.setPuce();
+      }
   }
 
   @Override
-  public void end(boolean interrupted) {}
+  public void end(boolean interrupted) {
+    //at the end of a match or if the robot is disabled, set to puce
+    ledSubsystem.setPuce();
+  }
 
   @Override
   public boolean isFinished() {
