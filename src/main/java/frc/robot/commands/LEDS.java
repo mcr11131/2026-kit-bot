@@ -40,11 +40,6 @@ public class LEDS extends Command {
       ledSubsystem.configureAlliance();
       allianceSet = true;
     }
-    //if the data has not arrived, set to puce
-    //this might be uneccessary
-    else if (!allianceSet){  
-      ledSubsystem.setPuce();
-      }
   }
 
   @Override

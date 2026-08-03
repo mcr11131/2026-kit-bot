@@ -52,8 +52,8 @@ public class RobotContainer {
   private final CommandGenericHID driverController = new CommandGenericHID(DRIVER_CONTROLLER_PORT);
   // The operator's controller
   // CURRENTLY NOT IN USE
-  private final CommandGenericHID operatorController = new CommandGenericHID(
-      OPERATOR_CONTROLLER_PORT);
+  private final CommandGenericHID overrideController = new CommandGenericHID(
+      OVERRIDE_CONTROLLER_PORT);
 
   // The autonomous chooser
   private final SendableChooser<Command> autoChooser = new SendableChooser<>();
@@ -93,6 +93,30 @@ public class RobotContainer {
 
     // Hold X to auto-align + launch, release to stop
     driverController.button(3).whileTrue(new AlignToScore(driveSubsystem, fuelSubsystem));
+
+    //override controls. Pressing this button claims the drive subsystem over the default command of drive
+    // and runs it with input from the secondary controller instead.
+    overrideController.button(3).whileTrue(new Drive(driveSubsystem, overrideController)); 
+
+
+    //all launch commands for operator as well
+    // Toggle intake on/off with left bumper - press once to start, press again to
+    // stop
+    driverController.button(5).toggleOnTrue(new Intake(fuelSubsystem));
+
+    // Toggle launch on/off with right bumper - press once to start launching, press
+    // again to stop
+    driverController.button(6).toggleOnTrue(new LaunchSequence(fuelSubsystem));
+
+    // While the A button is held on the operator controller, eject fuel back out
+    // the intake
+    driverController.button(2).whileTrue(new Eject(fuelSubsystem));
+
+
+
+
+
+
 
     // Set the default command for the drive subsystem to the command provided by
     // factory with the values provided by the joystick axes on the driver

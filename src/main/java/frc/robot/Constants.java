@@ -129,11 +129,12 @@ public static final Color kPuce = new Color(100, 30, 20);
     // Port constants for driver and operator controllers. These should match the
     // values in the Joystick tab of the Driver Station software
     public static final int DRIVER_CONTROLLER_PORT = 0;
-    public static final int OPERATOR_CONTROLLER_PORT = 1;
+    public static final int OVERRIDE_CONTROLLER_PORT = 1;
 
     // This value is multiplied by the joystick value when rotating the robot to
     // help avoid turning too fast and being difficult to control
-    public static final double DRIVE_SCALING = 0.6;
+    //DRIVE_SCALING changed to .3 from .6 for festival
+    public static final double DRIVE_SCALING = 0.3;
     public static final double ROTATION_SCALING = -1;
     public static final double DRIVE_DEADBAND = 0.15;
     public static final double TURN_DEADBAND = 0.15;

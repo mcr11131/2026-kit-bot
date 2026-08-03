@@ -36,10 +36,13 @@ import static frc.robot.Constants.FuelConstants.*;
 import static frc.robot.Constants.SimConstants.*;
 
 public class CANFuelSubsystem extends SubsystemBase {
+  //this is the flywheel
   private final TalonFX feederRoller;
   private final DutyCycleOut feederDutyCycle = new DutyCycleOut(0);
+  //this is the flippers
   private final SparkMax intakeLauncherRoller;
-  private final SparkMax intakeRoller;
+  //this is the intake
+  private final TalonFX intakeRoller;
 
   // TalonFX status signals for telemetry
   private final StatusSignal<Current> feederCurrentSignal;
@@ -71,7 +74,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     // create brushless motors for each of the motors on the launcher mechanism
     intakeLauncherRoller = new SparkMax(AUGER_MOTOR_ID, MotorType.kBrushless);
     feederRoller = new TalonFX(FLYWHEEL_MOTOR_ID);
-    intakeRoller = new SparkMax(INTAKE_MOTOR_ID, MotorType.kBrushless);
+    intakeRoller = new TalonFX(INTAKE_MOTOR_ID);
 
     // configure the Kraken X60 (TalonFX) feeder roller — current limits and ramp
     TalonFXConfiguration feederConfig = new TalonFXConfiguration();
@@ -108,12 +111,16 @@ public class CANFuelSubsystem extends SubsystemBase {
     launcherConfig.openLoopRampRate(0.1);   // BROWNOUT FIX: Prevent current spikes (100ms to full power)
     intakeLauncherRoller.configure(launcherConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
 
+
+
+    /*switched to talon, may need new way to set current limit
     //Intake configuring, including current limit and safe reset parameters...
     SparkMaxConfig intakeConfig = new SparkMaxConfig();
     intakeConfig.smartCurrentLimit(INTAKE_MOTOR_CURRENT_LIMIT);
     intakeConfig.voltageCompensation(12);  // BROWNOUT FIX: Consistent performance as battery voltage drops
     intakeConfig.openLoopRampRate(0.1);   // BROWNOUT FIX: Prevent current spikes (100ms to full power)
     intakeRoller.configure(intakeConfig, ResetMode.kResetSafeParameters, PersistMode.kPersistParameters);
+    */
 
     // put default speed values for various fuel operations onto the dashboard
     // all commands using this subsystem pull values from the dashboard to allow
@@ -151,7 +158,7 @@ public class CANFuelSubsystem extends SubsystemBase {
     //  intakeLauncherRoller.set(speed);
     //  burstTrue = false;
     //} else {
-      intakeLauncherRoller.set(0);
+      intakeLauncherRoller.set(speed);
     //  burstTrue = true;
     //}
   }
@@ -163,14 +170,13 @@ public class CANFuelSubsystem extends SubsystemBase {
 
   // A method to set the speed (percentage) of the intake roller
   public void setIntakeRoller(double speed) {
-    intakeRoller.set(speed);
+    intakeRoller.setControl(feederDutyCycle.withOutput(speed));
   }
-
   // A method to stop the rollers
   public void stop() {
-    feederRoller.setControl(feederDutyCycle.withOutput(0));
-    intakeLauncherRoller.set(0);
-    intakeRoller.set(0);
+    setFeederRoller(0);
+    setIntakeLauncherRoller(0);
+    setIntakeRoller(0);
   }
 
   @Override
